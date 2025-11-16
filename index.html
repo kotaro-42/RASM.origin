@@ -61,5 +61,37 @@
     <!-- Import RNBO Engine Wrapper -->
     <!-- Make sure to include the RNBO engine version to the version of your exported code, found in rnbopackage.json -->
     <script type="text/javascript" src="js/app.js"></script>
+
+
+    <!-- ▼▼▼▼▼ ここから Web Audio API マイク入力追加コード ▼▼▼▼▼ -->
+    <script>
+    (async () => {
+        // app.js の RNBO デバイス準備が完了するまで待つ
+        // app.js 内で window.rnboDevice と window.rnboContext を設定しておく必要があります
+
+        // RNBO デバイスが読み込み完了するまで待つ
+        while (!window.rnboDevice || !window.rnboContext) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        const context = window.rnboContext;
+        const device = window.rnboDevice;
+
+        try {
+            // マイク取得
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const micSource = context.createMediaStreamSource(stream);
+
+            // RNBO AudioWorkletNode の input に接続
+            micSource.connect(device.node);
+
+            console.log("Microphone successfully connected to RNBO input.");
+        } catch (e) {
+            console.error("Microphone access error:", e);
+        }
+    })();
+    </script>
+    <!-- ▲▲▲▲▲ ここまで追加コード ▲▲▲▲▲ -->
+
 </body>
 </html>
