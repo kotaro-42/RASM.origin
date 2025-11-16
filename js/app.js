@@ -54,7 +54,13 @@ async function setup() {
     // Create the device
     let device;
     try {
-        device = await RNBO.createDevice({ context, patcher });
+    device = await RNBO.createDevice({ context, patcher });
+
+// ▼▼▼ ここを追加 ▼▼▼
+    window.rnboDevice = device;
+    window.rnboContext = context;
+// ▲▲▲ ここを追加 ▲▲▲
+
     } catch (err) {
         if (typeof guardrails === "function") {
             guardrails({ error: err });
