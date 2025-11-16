@@ -98,7 +98,21 @@ async function setup() {
     document.body.onclick = () => {
         context.resume();
     }
+// ▼▼▼ マイク入力を RNBO に接続するコード ▼▼▼
+try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const micSource = context.createMediaStreamSource(stream);
 
+    // RNBO AudioWorkletNode に接続
+    // device.node は AudioWorkletNode
+    micSource.connect(device.node);
+
+    console.log("Microphone connected to RNBO device.");
+} catch (err) {
+    console.error("Microphone access failed:", err);
+}
+// ▲▲▲ マイク入力追加ここまで ▲▲▲
+    
     // Skip if you're not using guardrails.js
     if (typeof guardrails === "function")
         guardrails();
