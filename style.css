@@ -1,109 +1,102 @@
-/* ベースリセット */
-html, body {
-    margin: 0;
-    padding: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="rnbo-version" content="1.0.0-alpha.5">
+    <link rel="stylesheet" href="style/style.css">
+    <title>RASM origin</title>
 
-#rnbo-root {
-    margin: auto;
-    max-width: 540px;
-}
+    <style>
+        /* 不要UIまとめて非表示 */
+        #rnbo-clickable-keyboard,
+        #rnbo-inports,
+        #rnbo-console,
+        #rnbo-presets {
+            display: none !important;
+        }
+    </style>
+</head>
 
-#background {
-    position: absolute;
-    z-index: -1;
-}
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <svg id="background" width="100%" height="100%"></svg>
 
-h2, em {
-    width: 100%;
-}
+    <div id="rnbo-root">
+        <div>
+            <h1 id="patcher-title">RASM origin</h1>
+        </div>
 
-/* ========= スライダーUIの刷新 ========= */
+        <!-- RNBOが内部でUIを追加するため、このDOMは削除禁止 -->
+        <div id="rnbo-clickable-keyboard"></div>
+        <div id="rnbo-inports"></div>
+        <div id="rnbo-console"></div>
+        <div id="rnbo-presets"></div>
 
-#rnbo-parameter-sliders {
-    display: flex;
-    flex-direction: column;
-}
+        <!-- ★ RNBO が自動生成する部分なので、中身を触らないこと！ -->
+        <div id="rnbo-parameter-sliders">
+            <h2>Parameters</h2>
+            <em id="no-param-label">No parameters</em>
+        </div>
+    </div>
 
-#rnbo-parameter-sliders > div {
-    display: flex;
-    align-items: center;
-    margin: 8px 0;
-}
+    <!-- RNBO 必須 -->
+    <script src="js/guardrails.js"></script>
+    <script src="js/app.js"></script>
 
-#rnbo-parameter-sliders label {
-    width: 120px;
-    font-weight: 600;
-}
+    <!-- マイク入力接続 -->
+    <script>
+    (async () => {
+        while (!window.rnboDevice || !window.rnboContext) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        const ctx = window.rnboContext;
+        const dev = window.rnboDevice;
 
-/* 共通 スライダー（線＋丸い点） */
-#rnbo-parameter-sliders input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 220px;
-    height: 4px;
-    border-radius: 2px;
-    background: #ddd;
-    outline: none;
-    margin: 4px 8px;
-}
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const src = ctx.createMediaStreamSource(stream);
+            src.connect(dev.node);
+        } catch (e) {
+            console.error("mic error:", e);
+        }
+    })();
+    </script>
 
-/* 丸い点（thumb） */
-#rnbo-parameter-sliders input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    background: #007bff;
-    border-radius: 50%;
-    cursor: pointer;
-}
+    <!-- パラメータ離散化処理 -->
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const poll = setInterval(() => {
+            const rows = document.querySelectorAll('#rnbo-parameter-sliders > div');
+            if (rows.length < 5) return; // RNBO生成待ち
 
-#rnbo-parameter-sliders input[type=range]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: #007bff;
-    border-radius: 50%;
-    cursor: pointer;
-}
+            clearInterval(poll);
 
-/* volume は太く長い */
-#rnbo-parameter-sliders > div:first-child input[type=range] {
-    width: 320px;
-    height: 6px;
-}
+            const getRange = (index) =>
+                rows[index]?.querySelector('input[type="range"]');
 
-/* ====== 目盛り背景 ====== */
+            const volume = getRange(0);
+            const sensitivity = getRange(1);
+            const responsiveness = getRange(2);
+            const dynamics = getRange(3);
+            const release = getRange(4);
 
-/* 12目盛り（sensitivity） */
-.range-ticks-12 {
-    background-image: repeating-linear-gradient(
-        to right,
-        #aaa 0,
-        #aaa 2px,
-        transparent 2px,
-        transparent calc(100%/12)
-    );
-}
+            function setDiscrete(range, steps, cls) {
+                if (!range) return;
+                const min = parseFloat(range.min || 0);
+                const max = parseFloat(range.max || 1);
+                range.step = (max - min) / (steps - 1);
+                range.classList.add(cls);
+            }
 
-/* 10目盛り（responsiveness / release） */
-.range-ticks-10 {
-    background-image: repeating-linear-gradient(
-        to right,
-        #aaa 0,
-        #aaa 2px,
-        transparent 2px,
-        transparent calc(100%/10)
-    );
-}
+            setDiscrete(sensitivity, 12, 'range-ticks-12');
+            setDiscrete(responsiveness, 10, 'range-ticks-10');
+            setDiscrete(dynamics, 4, 'range-ticks-4');
+            setDiscrete(release, 10, 'range-ticks-10');
+        }, 50);
+    });
+    </script>
 
-/* 4目盛り（dynamics） */
-.range-ticks-4 {
-    background-image: repeating-linear-gradient(
-        to right,
-        #aaa 0,
-        #aaa 2px,
-        transparent 2px,
-        transparent calc(100%/4)
-    );
-}
+</body>
+</html>
