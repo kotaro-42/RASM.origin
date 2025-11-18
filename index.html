@@ -101,6 +101,49 @@
         }
     })();
     </script>
-
+    <script>
+    window.addEventListener("DOMContentLoaded", () => {
+        // RNBO device が読み込まれるまで待つ
+        const waitDevice = setInterval(() => {
+            if (!window.rnboDevice) return;
+    
+            clearInterval(waitDevice);
+    
+            // RNBO のパラメータを取得
+            const params = window.rnboDevice.parameters;
+    
+            // ① volume（スライダーの見た目だけ大きくするのでJSは不要）
+    
+            // ② sensitivity → 60段階
+            let s = params.byName.get("sensitivity");
+            if (s) {
+                s.update({ steps: 60 }); // RNBOのパラメータに60ステップ設定
+                document.querySelector('input[name="sensitivity"]').classList.add("discrete-60");
+            }
+    
+            // responsiveness → 10段階
+            let r = params.byName.get("responsiveness");
+            if (r) {
+                r.update({ steps: 10 });
+                document.querySelector('input[name="responsiveness"]').classList.add("discrete-10");
+            }
+    
+            // dynamics → 4段階
+            let d = params.byName.get("dynamics");
+            if (d) {
+                d.update({ steps: 4 });
+                document.querySelector('input[name="dynamics"]').classList.add("discrete-4");
+            }
+    
+            // release → 10段階（仮）
+            let rl = params.byName.get("release");
+            if (rl) {
+                rl.update({ steps: 10 });
+                document.querySelector('input[name="release"]').classList.add("discrete-10");
+            }
+    
+        }, 50);
+    });
+    </script>
 </body>
 </html>
