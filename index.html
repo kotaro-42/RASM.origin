@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="style/style.css">
     <title>RASM origin</title>
 
-    <!-- ▼ 隠したい UI をまとめて非表示にする CSS ▼ -->
     <style>
+        /* 不要UIまとめて非表示 */
         #rnbo-clickable-keyboard,
         #rnbo-inports,
         #rnbo-console,
@@ -17,133 +17,95 @@
             display: none !important;
         }
 
-        /* タイトルの文字を小さく、好みに応じて調整可 */
+        /* タイトル消す場合はここを有効化
         #patcher-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 20px;
+            display:none !important;
         }
+        */
     </style>
 </head>
 
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-
     <svg id="background" width="100%" height="100%"></svg>
 
     <div id="rnbo-root">
         <div>
-            <!-- RNBO の参照に必要なので削除しない。CSS で非表示も可能 -->
             <h1 id="patcher-title">RASM origin</h1>
         </div>
 
-        <!-- ▼ 非表示になるが、DOM は必要なので残す ▼ -->
-        <div id="rnbo-clickable-keyboard">
-            <h2>MIDI Keyboard</h2>
-            <em id="no-midi-label">No MIDI input</em>
-        </div>
+        <!-- RNBOデフォルトUI（非表示だがDOMは必要） -->
+        <div id="rnbo-clickable-keyboard"></div>
+        <div id="rnbo-inports"></div>
+        <div id="rnbo-console"></div>
+        <div id="rnbo-presets"></div>
 
-        <div id="rnbo-inports">
-            <h2>Inports</h2>
-            <em id="no-inports-label">No inports available</em>
-            <form id="inport-form" className="inport">
-                <div className="inport-input">
-                    <select id="inport-select"></select>
-                    <input id="inport-text" type="text"></input>
-                    <input id="inport-submit" className="smallButton" type="submit" value="Send"/>
-                </div>
-            </form>
-        </div>
-
-        <div id="rnbo-console">
-            <h2>Outports</h2>
-            <em id="no-outports-label">No outports available</em>
-            <div id="rnbo-console-div">
-                <p id="rnbo-console-readout">Waiting for messages...</p>
-                <em id="rnbo-console-description">Check the developer console…</em>
-            </div>
-        </div>
-
-        <div id="rnbo-presets">
-            <h2>Presets</h2>
-            <em id="no-presets-label">No presets defined</em>
-            <select id="preset-select"></select>
-        </div>
-        <!-- ▲ 非表示にされるブロックここまで ▲ -->
-
-        <!-- パラメータスライダーは表示される -->
+        <!-- パラメータ UI -->
         <div id="rnbo-parameter-sliders">
             <h2>Parameters</h2>
             <em id="no-param-label">No parameters</em>
         </div>
     </div>
 
-    <!-- RNBO scripts -->
-    <script type="text/javascript" src="js/guardrails.js"></script>
-    <script type="text/javascript" src="js/app.js"></script>
+    <!-- RNBO 必須 -->
+    <script src="js/guardrails.js"></script>
+    <script src="js/app.js"></script>
 
-    <!-- ▼ マイク入力を RNBO に接続するコード（あなたの元HTMLから移植） ▼ -->
+    <!-- マイク入力接続 -->
     <script>
     (async () => {
         while (!window.rnboDevice || !window.rnboContext) {
             await new Promise(resolve => setTimeout(resolve, 50));
         }
-        const context = window.rnboContext;
-        const device = window.rnboDevice;
+        const ctx = window.rnboContext;
+        const dev = window.rnboDevice;
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const micSource = context.createMediaStreamSource(stream);
-            micSource.connect(device.node);
-            console.log("Microphone successfully connected to RNBO input.");
+            const src = ctx.createMediaStreamSource(stream);
+            src.connect(dev.node);
         } catch (e) {
-            console.error("Microphone access error:", e);
+            console.error("mic error:", e);
         }
     })();
     </script>
+
+    <!-- 離散スライダー設定 -->
     <script>
-    window.addEventListener("DOMContentLoaded", () => {
-        // RNBO device が読み込まれるまで待つ
-        const waitDevice = setInterval(() => {
-            if (!window.rnboDevice) return;
-    
-            clearInterval(waitDevice);
-    
-            // RNBO のパラメータを取得
-            const params = window.rnboDevice.parameters;
-    
-            // ① volume（スライダーの見た目だけ大きくするのでJSは不要）
-    
-            // ② sensitivity → 60段階
-            let s = params.byName.get("sensitivity");
-            if (s) {
-                s.update({ steps: 60 }); // RNBOのパラメータに60ステップ設定
-                document.querySelector('input[name="sensitivity"]').classList.add("discrete-60");
+    window.addEventListener('DOMContentLoaded', () => {
+        const poll = setInterval(() => {
+            const rows = document.querySelectorAll('#rnbo-parameter-sliders > div');
+            if (rows.length < 5) return; // スライダー生成前なら待つ
+
+            clearInterval(poll);
+
+            const getRange = idx =>
+                rows[idx]?.querySelector('input[type="range"]');
+
+            const volume = getRange(0);
+            const sensitivity = getRange(1);
+            const responsiveness = getRange(2);
+            const dynamics = getRange(3);
+            const release = getRange(4);
+
+            /** 離散化処理 **/
+            function setDiscrete(range, steps, className) {
+                if (!range) return;
+                const min = parseFloat(range.min || 0);
+                const max = parseFloat(range.max || 1);
+                range.step = (max - min) / (steps - 1);
+                range.classList.add(className);
             }
-    
-            // responsiveness → 10段階
-            let r = params.byName.get("responsiveness");
-            if (r) {
-                r.update({ steps: 10 });
-                document.querySelector('input[name="responsiveness"]').classList.add("discrete-10");
-            }
-    
-            // dynamics → 4段階
-            let d = params.byName.get("dynamics");
-            if (d) {
-                d.update({ steps: 4 });
-                document.querySelector('input[name="dynamics"]').classList.add("discrete-4");
-            }
-    
-            // release → 10段階（仮）
-            let rl = params.byName.get("release");
-            if (rl) {
-                rl.update({ steps: 10 });
-                document.querySelector('input[name="release"]').classList.add("discrete-10");
-            }
-    
+
+            // volume → 連続（特大表示はCSSで対応）
+
+            setDiscrete(sensitivity, 12, 'range-ticks-12');
+            setDiscrete(responsiveness, 10, 'range-ticks-10');
+            setDiscrete(dynamics, 4, 'range-ticks-4');
+            setDiscrete(release, 10, 'range-ticks-10');
         }, 50);
     });
     </script>
+
 </body>
 </html>
