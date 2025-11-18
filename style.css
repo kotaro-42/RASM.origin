@@ -52,12 +52,3 @@ h2, em {
 #rnbo-parameter-sliders > div > input:first-of-type {
     flex-grow: 1;
 }
-
-#patcher-title {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-}
