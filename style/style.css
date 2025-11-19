@@ -180,3 +180,12 @@ body {
 #rnbo-parameter-sliders * {
     display: none !important;
 }
+#rnbo-clickable-keyboard,
+#rnbo-inports,
+#rnbo-console,
+#rnbo-presets,
+#rnbo-parameter-sliders,
+#no-param-label {
+    display: none !important;
+    visibility: hidden !important;
+}
