@@ -225,5 +225,24 @@
 
         })();
     </script>
+    <!-- RNBO scripts（順番が重要！） -->
+    <script src="https://cdn.cycling74.com/rnbo/rnbo.min.js"></script>
+    <script src="js/guardrails.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- あなたの追加コードはここから下 -->
+    <script>
+    ( async () => {
+        while (!window.rnboDevice || !window.rnboContext) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+    
+        const context = window.rnboContext;
+        const device = window.rnboDevice;
+    
+        /* ここから下はそのまま */
+    })();
+    </script>
 </body>
 </html>
