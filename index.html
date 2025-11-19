@@ -366,5 +366,54 @@
         }
     })();
     </script>
+
+    <script src="js/app.js"></script>
+    
+    <script>
+    (async () => {
+        console.log("Custom UI script started");
+    
+        // RNBO デバイスが読み込まれるまで待つ
+        while (!window.rnboDevice) {
+            console.log("waiting for rnboDevice...");
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    
+        const device = window.rnboDevice;
+    
+        const sliderMappings = {
+            'volume-slider': 'volume',
+            'sensitivity-slider': 'sensitivity',
+            'dynamics-slider': 'dynamics',
+            'responsiveness-slider': 'responsiveness',
+            'release-slider': 'release'
+        };
+    
+        for (const [id, paramName] of Object.entries(sliderMappings)) {
+            const slider = document.getElementById(id);
+    
+            const param = device.parameters.find(p => p.name === paramName);
+            if (!param) {
+                console.warn("Parameter not found:", paramName);
+                continue;
+            }
+    
+            // 初期位置
+            slider.value = (param.value - param.min) / (param.max - param.min) * 100;
+    
+            // UI → RNBO
+            slider.addEventListener('input', (e) => {
+                const normalized = e.target.value / 100;
+                param.value = param.min + normalized * (param.max - param.min);
+            });
+    
+            // RNBO → UI
+            param.on('change', (v) => {
+                slider.value = (v - param.min) / (param.max - param.min) * 100;
+            });
+        }
+    
+    })();
+    </script>
 </body>
 </html>
