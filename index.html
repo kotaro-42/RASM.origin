@@ -180,13 +180,13 @@
             margin-top: 8px;
         }
         
-        /* RNBO parameter sliders を隠す */
-        #rnbo-parameter-sliders h2 {
-            display: none;
+        /* RNBO parameter sliders を完全に隠す */
+        #rnbo-parameter-sliders {
+            display: none !important;
         }
         
-        #rnbo-parameter-sliders .rnbo-slider {
-            display: none;
+        #rnbo-parameter-sliders * {
+            display: none !important;
         }
     </style>
 </head>
@@ -332,38 +332,60 @@
             console.error("Microphone access error:", e);
         }
         
-        // スライダーとRNBOパラメータの接続
-        // 実際のパラメータ名に合わせて調整してください
-        const sliderMappings = {
-            'volume-slider': 'volume',
-            'sensitivity-slider': 'sensitivity',
-            'dynamics-slider': 'dynamics',
-            'responsiveness-slider': 'responsiveness',
-            'release-slider': 'release'
-        };
+        // 利用可能なパラメータを確認
+        console.log("Available RNBO parameters:", device.parameters.map(p => ({
+            name: p.name,
+            min: p.min,
+            max: p.max,
+            value: p.value
+        })));
         
-        for (const [sliderId, paramName] of Object.entries(sliderMappings)) {
+        // スライダーとRNBOパラメータの接続
+        const sliderMappings = [
+            { sliderId: 'volume-slider', paramName: 'volume' },
+            { sliderId: 'sensitivity-slider', paramName: 'sensitivity' },
+            { sliderId: 'dynamics-slider', paramName: 'dynamics' },
+            { sliderId: 'responsiveness-slider', paramName: 'responsiveness' },
+            { sliderId: 'release-slider', paramName: 'release' }
+        ];
+        
+        sliderMappings.forEach(({ sliderId, paramName }) => {
             const slider = document.getElementById(sliderId);
-            if (slider && device.parameters) {
-                const param = device.parameters.find(p => p.name === paramName);
-                if (param) {
-                    // 初期値設定
-                    slider.value = ((param.value - param.min) / (param.max - param.min)) * 100;
-                    
-                    // スライダー変更時
-                    slider.addEventListener('input', (e) => {
-                        const normalizedValue = e.target.value / 100;
-                        const paramValue = param.min + normalizedValue * (param.max - param.min);
-                        param.value = paramValue;
-                    });
-                    
-                    // パラメータ変更時
-                    param.on('change', (value) => {
-                        slider.value = ((value - param.min) / (param.max - param.min)) * 100;
-                    });
-                }
+            if (!slider) return;
+            
+            const param = device.parameters.find(p => p.name === paramName || p.id === paramName);
+            
+            if (param) {
+                console.log(`Connecting ${sliderId} to parameter ${param.name}`);
+                
+                // パラメータの値をスライダーの0-100範囲に正規化
+                const paramToSlider = (value) => {
+                    return ((value - param.min) / (param.max - param.min)) * 100;
+                };
+                
+                // スライダーの0-100値をパラメータの範囲に変換
+                const sliderToParam = (value) => {
+                    return param.min + (value / 100) * (param.max - param.min);
+                };
+                
+                // 初期値設定
+                slider.value = paramToSlider(param.value);
+                
+                // スライダー変更時にパラメータを更新
+                slider.addEventListener('input', (e) => {
+                    const paramValue = sliderToParam(parseFloat(e.target.value));
+                    param.value = paramValue;
+                    console.log(`${paramName}: ${paramValue}`);
+                });
+                
+                // パラメータ変更時にスライダーを更新（双方向バインディング）
+                param.on('change', (value) => {
+                    slider.value = paramToSlider(value);
+                });
+            } else {
+                console.warn(`Parameter "${paramName}" not found for slider ${sliderId}`);
             }
-        }
+        });
     })();
     </script>
 </body>
