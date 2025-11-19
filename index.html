@@ -316,9 +316,14 @@
     <script>
     // RNBO パラメータとUIスライダーを接続
     (async () => {
+        // RNBOデバイスとコンテキストの準備を待つ
         while (!window.rnboDevice || !window.rnboContext) {
             await new Promise(resolve => setTimeout(resolve, 50));
         }
+        
+        // パラメータが完全にロードされるまでさらに待機
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
         const context = window.rnboContext;
         const device = window.rnboDevice;
         
@@ -327,18 +332,17 @@
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const micSource = context.createMediaStreamSource(stream);
             micSource.connect(device.node);
-            console.log("Microphone successfully connected to RNBO input.");
+            console.log("✓ Microphone successfully connected to RNBO input.");
         } catch (e) {
-            console.error("Microphone access error:", e);
+            console.error("✗ Microphone access error:", e);
         }
         
         // 利用可能なパラメータを確認
-        console.log("Available RNBO parameters:", device.parameters.map(p => ({
-            name: p.name,
-            min: p.min,
-            max: p.max,
-            value: p.value
-        })));
+        console.log("=== Available RNBO parameters ===");
+        device.parameters.forEach((p, i) => {
+            console.log(`[${i}] ${p.name}: ${p.value} (range: ${p.min} - ${p.max})`);
+        });
+        console.log("================================");
         
         // 各パラメータの正確な範囲と初期値
         const parameterRanges = {
@@ -358,51 +362,74 @@
             { sliderId: 'release-slider', paramName: 'release' }
         ];
         
+        console.log("=== Connecting sliders ===");
+        
         sliderMappings.forEach(({ sliderId, paramName }) => {
             const slider = document.getElementById(sliderId);
             if (!slider) {
-                console.warn(`Slider ${sliderId} not found`);
+                console.error(`✗ Slider element "${sliderId}" not found in DOM`);
                 return;
             }
             
-            const param = device.parameters.find(p => p.name === paramName);
+            // パラメータを名前とインデックスの両方で検索
+            let param = device.parameters.find(p => p.name === paramName);
+            if (!param) {
+                param = device.parameters.find(p => p.id === paramName);
+            }
             
             if (param) {
                 const range = parameterRanges[paramName];
-                console.log(`✓ Connected ${sliderId} to parameter ${param.name} (range: ${range.min} - ${range.max})`);
+                console.log(`✓ Connecting "${sliderId}" → parameter "${param.name}"`);
+                console.log(`  Range: ${range.min} to ${range.max}, Current: ${param.value}`);
                 
                 // パラメータの値をスライダーの0-100範囲に正規化
                 const paramToSlider = (value) => {
-                    return ((value - range.min) / (range.max - range.min)) * 100;
+                    const normalized = ((value - range.min) / (range.max - range.min)) * 100;
+                    return Math.max(0, Math.min(100, normalized));
                 };
                 
                 // スライダーの0-100値をパラメータの範囲に変換
                 const sliderToParam = (value) => {
-                    return range.min + (value / 100) * (range.max - range.min);
+                    const paramValue = range.min + (value / 100) * (range.max - range.min);
+                    return Math.max(range.min, Math.min(range.max, paramValue));
                 };
                 
                 // 初期値設定
-                slider.value = paramToSlider(param.value);
-                console.log(`  Initial value: ${param.value} (slider: ${slider.value}%)`);
+                const initialSliderValue = paramToSlider(param.value);
+                slider.value = initialSliderValue;
+                console.log(`  Initial slider value: ${initialSliderValue.toFixed(1)}%`);
                 
                 // スライダー変更時にパラメータを更新
                 slider.addEventListener('input', (e) => {
-                    const paramValue = sliderToParam(parseFloat(e.target.value));
+                    const sliderValue = parseFloat(e.target.value);
+                    const paramValue = sliderToParam(sliderValue);
                     param.value = paramValue;
-                    console.log(`${paramName} → ${paramValue.toFixed(2)}`);
+                    console.log(`📊 ${paramName}: ${paramValue.toFixed(3)} (slider: ${sliderValue.toFixed(1)}%)`);
+                });
+                
+                // 確認用: change イベントでも
+                slider.addEventListener('change', (e) => {
+                    const sliderValue = parseFloat(e.target.value);
+                    const paramValue = sliderToParam(sliderValue);
+                    console.log(`✓ ${paramName} set to: ${paramValue.toFixed(3)}`);
                 });
                 
                 // パラメータ変更時にスライダーを更新（双方向バインディング）
                 param.on('change', (value) => {
                     const newSliderValue = paramToSlider(value);
-                    if (Math.abs(slider.value - newSliderValue) > 0.1) {
+                    if (Math.abs(slider.value - newSliderValue) > 0.5) {
                         slider.value = newSliderValue;
+                        console.log(`🔄 ${paramName} updated from external source: ${value.toFixed(3)}`);
                     }
                 });
             } else {
-                console.error(`✗ Parameter "${paramName}" not found!`);
+                console.error(`✗ Parameter "${paramName}" NOT FOUND in device.parameters!`);
+                console.log(`   Available parameters: ${device.parameters.map(p => p.name).join(', ')}`);
             }
         });
+        
+        console.log("=========================");
+        console.log("Setup complete! Try moving the sliders.");
     })();
     </script>
 </body>
