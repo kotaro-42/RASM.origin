@@ -1,13 +1,13 @@
+タイトルの非表示ができていません。もしindex.htmlで難しいならcssの更新版を教えて。以下に元のCSSを配置しておく・￥
+
 html, body {
     margin: 0;
     padding: 0;
 }
-
 #rnbo-root {
-    margin: auto;
-    max-width: 540px;
+    height: 100vh;
+    width: 100vw;
 }
-
 #background {
     position: absolute;
     z-index: -1;
@@ -17,7 +17,30 @@ h2, em {
     width: 100%;
 }
 
-/* ========= スライダー全体のデザイン ========= */
+#rnbo-root {
+    margin: auto;
+    max-width: 540px;
+}
+
+#rnbo-clickable-keyboard {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#rnbo-clickable-keyboard > div {
+    margin: 2px;
+    border: solid black 1px;
+    min-height: 50px;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#rnbo-clickable-keyboard > div.clicked {
+    background: #222222;
+    color: #dddddd;
+}
 
 #rnbo-parameter-sliders {
     display: flex;
@@ -26,81 +49,8 @@ h2, em {
 
 #rnbo-parameter-sliders > div {
     display: flex;
-    align-items: center;
-    margin: 8px 0;
 }
 
-/* ラベル */
-#rnbo-parameter-sliders label {
-    width: 120px;
-    font-weight: 600;
-}
-
-/* 共通スライダー（細い線＋丸い点） */
-#rnbo-parameter-sliders input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 220px;
-    height: 4px;
-    border-radius: 2px;
-    background: #ddd;
-    outline: none;
-    margin: 4px 8px;
-}
-
-/* 丸い点 */
-#rnbo-parameter-sliders input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    background: #007bff;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-#rnbo-parameter-sliders input[type=range]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: #007bff;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-/* volume → 特大 */
-#rnbo-parameter-sliders > div:first-child input[type=range] {
-    width: 320px;
-    height: 6px;
-}
-
-/* ===== 目盛り背景（離散表示） ===== */
-
-.range-ticks-12 {
-    background-image: repeating-linear-gradient(
-        to right,
-        #aaa 0,
-        #aaa 2px,
-        transparent 2px,
-        transparent calc(100%/12)
-    );
-}
-
-.range-ticks-10 {
-    background-image: repeating-linear-gradient(
-        to right,
-        #aaa 0,
-        #aaa 2px,
-        transparent 2px,
-        transparent calc(100%/10)
-    );
-}
-
-.range-ticks-4 {
-    background-image: repeating-linear-gradient(
-        to right,
-        #aaa 0,
-        #aaa 2px,
-        transparent 2px,
-        transparent calc(100%/4)
-    );
+#rnbo-parameter-sliders > div > input:first-of-type {
+    flex-grow: 1;
 }
