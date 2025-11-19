@@ -85,8 +85,8 @@
         }
         
         .vertical-slider {
-            writing-mode: bt-lr;
-            -webkit-appearance: slider-vertical;
+            writing-mode: vertical-lr;
+            direction: rtl;
             width: 8px;
             height: 350px;
             background: linear-gradient(to top, #e0e0e0 0%, #e0e0e0 100%);
@@ -414,14 +414,18 @@
                     console.log(`✓ ${paramName} set to: ${paramValue.toFixed(3)}`);
                 });
                 
-                // パラメータ変更時にスライダーを更新（双方向バインディング）
-                param.on('change', (value) => {
-                    const newSliderValue = paramToSlider(value);
-                    if (Math.abs(slider.value - newSliderValue) > 0.5) {
-                        slider.value = newSliderValue;
-                        console.log(`🔄 ${paramName} updated from external source: ${value.toFixed(3)}`);
+                // パラメータ変更の監視（RNBOのイベントシステムを使用しない）
+                // 代わりに定期的にチェック
+                setInterval(() => {
+                    const currentParamValue = param.value;
+                    const currentSliderValue = parseFloat(slider.value);
+                    const expectedSliderValue = paramToSlider(currentParamValue);
+                    
+                    // パラメータが外部から変更された場合、スライダーを更新
+                    if (Math.abs(currentSliderValue - expectedSliderValue) > 1) {
+                        slider.value = expectedSliderValue;
                     }
-                });
+                }, 100);
             } else {
                 console.error(`✗ Parameter "${paramName}" NOT FOUND in device.parameters!`);
                 console.log(`   Available parameters: ${device.parameters.map(p => p.name).join(', ')}`);
