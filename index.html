@@ -7,42 +7,278 @@
     <meta name="rnbo-version" content="1.0.0-alpha.5">
     <link rel="stylesheet" href="style/style.css">
     <title>RASM origin</title>
-
-    <!-- ▼ 隠したい UI をまとめて非表示にする CSS ▼ -->
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px;
+        }
+        
         #rnbo-clickable-keyboard,
         #rnbo-inports,
         #rnbo-console,
-        #rnbo-presets {
+        #rnbo-presets,
+        #no-param-label {
             display: none !important;
         }
-
-        /* タイトルの文字を小さく、好みに応じて調整可 */
+        
         #patcher-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 60px;
+            letter-spacing: -1px;
+        }
+        
+        #rnbo-root {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .controls-container {
+            display: flex;
+            gap: 60px;
+            align-items: flex-start;
+        }
+        
+        .volume-section {
+            flex-shrink: 0;
+        }
+        
+        .tuning-section {
+            flex: 1;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 400;
             margin-bottom: 20px;
+        }
+        
+        .volume-control {
+            border: 2px solid #000;
+            padding: 30px 40px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .volume-label {
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .vertical-slider-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .vertical-slider {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 8px;
+            height: 350px;
+            background: linear-gradient(to top, #e0e0e0 0%, #e0e0e0 100%);
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
+            border: 2px solid #8dd4d6;
+            cursor: pointer;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+        }
+        
+        .vertical-slider::-moz-range-thumb {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
+            border: 2px solid #8dd4d6;
+            cursor: pointer;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+        }
+        
+        .tuning-control {
+            border: 2px solid #000;
+            padding: 40px;
+        }
+        
+        .slider-group {
+            margin-bottom: 40px;
+        }
+        
+        .slider-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .slider-label-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .slider-label {
+            font-size: 16px;
+            font-weight: 400;
+        }
+        
+        .horizontal-slider-container {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .horizontal-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .horizontal-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 70px;
+            height: 50px;
+            background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
+            border: 2px solid #8dd4d6;
+            cursor: pointer;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        
+        .horizontal-slider::-moz-range-thumb {
+            width: 70px;
+            height: 50px;
+            background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
+            border: 2px solid #8dd4d6;
+            cursor: pointer;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        
+        .slider-range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        /* RNBO parameter sliders を隠す */
+        #rnbo-parameter-sliders h2 {
+            display: none;
+        }
+        
+        #rnbo-parameter-sliders .rnbo-slider {
+            display: none;
         }
     </style>
 </head>
-
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-
     <svg id="background" width="100%" height="100%"></svg>
-
     <div id="rnbo-root">
         <div>
-            <!-- RNBO の参照に必要なので削除しない。CSS で非表示も可能 -->
             <h1 id="patcher-title">RASM origin</h1>
         </div>
-
-        <!-- ▼ 非表示になるが、DOM は必要なので残す ▼ -->
+        
+        <div class="controls-container">
+            <!-- Volume Section -->
+            <div class="volume-section">
+                <h2 class="section-title">Volume</h2>
+                <div class="volume-control">
+                    <span class="volume-label">high</span>
+                    <div class="vertical-slider-container">
+                        <input type="range" min="0" max="100" value="40" class="vertical-slider" id="volume-slider" orient="vertical">
+                    </div>
+                    <span class="volume-label">low</span>
+                </div>
+            </div>
+            
+            <!-- Tuning Section -->
+            <div class="tuning-section">
+                <h2 class="section-title">Tuning</h2>
+                <div class="tuning-control">
+                    <!-- Sensitivity -->
+                    <div class="slider-group">
+                        <div class="slider-label-container">
+                            <span class="slider-label">sensitivity</span>
+                        </div>
+                        <div class="horizontal-slider-container">
+                            <input type="range" min="0" max="100" value="25" class="horizontal-slider" id="sensitivity-slider">
+                        </div>
+                        <div class="slider-range-labels">
+                            <span>low</span>
+                            <span>high</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamics -->
+                    <div class="slider-group">
+                        <div class="slider-label-container">
+                            <span class="slider-label">dynamics</span>
+                        </div>
+                        <div class="horizontal-slider-container">
+                            <input type="range" min="0" max="100" value="75" class="horizontal-slider" id="dynamics-slider">
+                        </div>
+                        <div class="slider-range-labels">
+                            <span>low</span>
+                            <span>high</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Responsiveness -->
+                    <div class="slider-group">
+                        <div class="slider-label-container">
+                            <span class="slider-label">responsiveness</span>
+                        </div>
+                        <div class="horizontal-slider-container">
+                            <input type="range" min="0" max="100" value="40" class="horizontal-slider" id="responsiveness-slider">
+                        </div>
+                        <div class="slider-range-labels">
+                            <span>low</span>
+                            <span>high</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Release -->
+                    <div class="slider-group">
+                        <div class="slider-label-container">
+                            <span class="slider-label">release</span>
+                        </div>
+                        <div class="horizontal-slider-container">
+                            <input type="range" min="0" max="100" value="35" class="horizontal-slider" id="release-slider">
+                        </div>
+                        <div class="slider-range-labels">
+                            <span>short</span>
+                            <span>long</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden RNBO Elements (必要なので残す) -->
         <div id="rnbo-clickable-keyboard">
             <h2>MIDI Keyboard</h2>
             <em id="no-midi-label">No MIDI input</em>
         </div>
-
         <div id="rnbo-inports">
             <h2>Inports</h2>
             <em id="no-inports-label">No inports available</em>
@@ -54,7 +290,6 @@
                 </div>
             </form>
         </div>
-
         <div id="rnbo-console">
             <h2>Outports</h2>
             <em id="no-outports-label">No outports available</em>
@@ -63,34 +298,31 @@
                 <em id="rnbo-console-description">Check the developer console…</em>
             </div>
         </div>
-
         <div id="rnbo-presets">
             <h2>Presets</h2>
             <em id="no-presets-label">No presets defined</em>
             <select id="preset-select"></select>
         </div>
-        <!-- ▲ 非表示にされるブロックここまで ▲ -->
-
-        <!-- パラメータスライダーは表示される -->
         <div id="rnbo-parameter-sliders">
             <h2>Parameters</h2>
             <em id="no-param-label">No parameters</em>
         </div>
     </div>
-
+    
     <!-- RNBO scripts -->
     <script type="text/javascript" src="js/guardrails.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
-
-    <!-- ▼ マイク入力を RNBO に接続するコード（あなたの元HTMLから移植） ▼ -->
+    
     <script>
+    // RNBO パラメータとUIスライダーを接続
     (async () => {
         while (!window.rnboDevice || !window.rnboContext) {
             await new Promise(resolve => setTimeout(resolve, 50));
         }
         const context = window.rnboContext;
         const device = window.rnboDevice;
-
+        
+        // マイク入力接続
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const micSource = context.createMediaStreamSource(stream);
@@ -99,8 +331,40 @@
         } catch (e) {
             console.error("Microphone access error:", e);
         }
+        
+        // スライダーとRNBOパラメータの接続
+        // 実際のパラメータ名に合わせて調整してください
+        const sliderMappings = {
+            'volume-slider': 'volume',
+            'sensitivity-slider': 'sensitivity',
+            'dynamics-slider': 'dynamics',
+            'responsiveness-slider': 'responsiveness',
+            'release-slider': 'release'
+        };
+        
+        for (const [sliderId, paramName] of Object.entries(sliderMappings)) {
+            const slider = document.getElementById(sliderId);
+            if (slider && device.parameters) {
+                const param = device.parameters.find(p => p.name === paramName);
+                if (param) {
+                    // 初期値設定
+                    slider.value = ((param.value - param.min) / (param.max - param.min)) * 100;
+                    
+                    // スライダー変更時
+                    slider.addEventListener('input', (e) => {
+                        const normalizedValue = e.target.value / 100;
+                        const paramValue = param.min + normalizedValue * (param.max - param.min);
+                        param.value = paramValue;
+                    });
+                    
+                    // パラメータ変更時
+                    param.on('change', (value) => {
+                        slider.value = ((value - param.min) / (param.max - param.min)) * 100;
+                    });
+                }
+            }
+        }
     })();
     </script>
-
 </body>
 </html>
