@@ -173,7 +173,7 @@ function makeSliders(device) {
 
 
 /* 以下はデフォルト（変更なし） */
-function function makeInportForm(device) {
+function makeInportForm(device) {
     const idiv = document.getElementById("rnbo-inports");
     const inportSelect = document.getElementById("inport-select");
     const inportText = document.getElementById("inport-text");
@@ -185,26 +185,27 @@ function function makeInportForm(device) {
     const inports = device.messages
         .filter(m => m.type === RNBO.MessagePortType.Inport);
 
-    // ---- ★ 安全な removeChild -------------------------------------
+    // ---- 安全な removeChild ----
     const safeRemove = (parent, selector) => {
+        if (!parent) return;
         const node = parent.querySelector(selector);
         if (node && node.parentNode === parent) {
             parent.removeChild(node);
         }
     };
-    // ----------------------------------------------------------------
+    // ----------------------------
 
-    // inport が 0 の場合 → フォームごと削除
+    // inport が 0 の場合 → UIを消す
     if (inports.length === 0) {
         safeRemove(idiv, "#inport-form");
         safeRemove(idiv, "#no-inports-label");
         return;
     }
 
-    // inport がある場合
+    // ラベルを削除
     safeRemove(idiv, "#no-inports-label");
 
-    // セレクトを生成
+    // セレクト生成
     inports.forEach(inport => {
         const option = document.createElement("option");
         option.textContent = inport.tag;
@@ -217,29 +218,15 @@ function function makeInportForm(device) {
         inportTag = inportSelect.value;
     };
 
+    // 送信処理
     inportForm.onsubmit = (ev) => {
         ev.preventDefault();
-        const values = inportText.value.split(/\s+/).map(n => parseFloat(n));
-        const evObj = new RNBO.MessageEvent(RNBO.TimeNow, inportTag, values);
-        device.scheduleEvent(evObj);
+        const values = inportText.value.split(/\s+/).map(num => parseFloat(num));
+        const msg = new RNBO.MessageEvent(RNBO.TimeNow, inportTag, values);
+        device.scheduleEvent(msg);
     };
 }
 
-
-function attachOutports(device) {
-    const outports = device.outports;
-    if (outports.length < 1) {
-        document.getElementById("rnbo-console").removeChild(document.getElementById("rnbo-console-div"));
-        return;
-    }
-
-    document.getElementById("rnbo-console").removeChild(document.getElementById("no-outports-label"));
-    device.messageEvent.subscribe((ev) => {
-        if (outports.findIndex(elt => elt.tag === ev.tag) < 0) return;
-        console.log(`${ev.tag}: ${ev.payload}`);
-        document.getElementById("rnbo-console-readout").innerText = `${ev.tag}: ${ev.payload}`;
-    });
-}
 
 function loadPresets(device, patcher) {
     let presets = patcher.presets || [];
