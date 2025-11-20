@@ -58,7 +58,6 @@ async function setup() {
 
     makeSliders(device);
     makeInportForm(device);
-    attachOutports(device);
     loadPresets(device, patcher);
     makeMIDIKeyboard(device);
 
