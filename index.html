@@ -121,59 +121,110 @@
     <script type="text/javascript" src="js/app.js"></script>
 
     <!-- UI と RNBO を同期させるスクリプト -->
+     <!-- RNBO Parameter Connection Script（完全オリジナル・改訂版） -->
     <script>
         (async () => {
-            while (!window.rnboDevice || !window.rnboContext)
-                await new Promise(r => setTimeout(r, 50));
-            await new Promise(r => setTimeout(r, 200));
+            // rnboDevice / rnboContext の準備待ち
+            while (!window.rnboDevice || !window.rnboContext) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             const device = window.rnboDevice;
 
-            /* RNBO parameter definitions */
-            const ranges = {
-                volume: { min: 0, max: 1 },
-                sensitivity: { min: 20, max: 80, invert: true },     // ★ 反転
-                responsiveness: { min: 0, max: 10, invert: true },   // ★ 反転
-                dynamics: { min: 0, max: 4 },
-                release: { min: 0, max: 10 }
+            // パラメータのレンジ + 反転フラグ + ステップ幅
+            const parameterRanges = {
+                volume:        { min: 0,  max: 1,  invert: false, step: 0.01 },
+                sensitivity:   { min: 20, max: 80, invert: true,  step: 5    },  // ★反転＋5刻み
+                responsiveness:{ min: 0,  max: 10, invert: true,  step: 1    },  // ★反転＋1刻み
+                dynamics:      { min: 0,  max: 4,  invert: false, step: 1    },
+                release:       { min: 0,  max: 10, invert: false, step: 1    }
             };
 
-            const map = [
-                { id: 'volume-slider', p: 'volume' },
-                { id: 'sensitivity-slider', p: 'sensitivity' },
-                { id: 'dynamics-slider', p: 'dynamics' },
-                { id: 'responsiveness-slider', p: 'responsiveness' },
-                { id: 'release-slider', p: 'release' }
+            // HTML スライダーと RNBO パラメータ名の対応
+            const sliderMappings = [
+                { sliderId: 'volume-slider',          paramName: 'volume' },
+                { sliderId: 'sensitivity-slider',     paramName: 'sensitivity' },
+                { sliderId: 'dynamics-slider',        paramName: 'dynamics' },
+                { sliderId: 'responsiveness-slider',  paramName: 'responsiveness' },
+                { sliderId: 'release-slider',         paramName: 'release' }
             ];
 
-            /* Convert param value → slider position (0–100) */
-            function p2s(v, r) {
-                const norm = (v - r.min) / (r.max - r.min);
-                return r.invert ? 100 - norm * 100 : norm * 100;
-            }
+            sliderMappings.forEach(({ sliderId, paramName }) => {
+                const slider = document.getElementById(sliderId);
+                if (!slider) return;
 
-            /* Convert slider position (0–100) → param value */
-            function s2p(v, r) {
-                const norm = r.invert ? (100 - v) / 100 : v / 100;
-                return r.min + norm * (r.max - r.min);
-            }
+                // RNBO 側のパラメータを取得
+                let param = device.parameters.find(p => p.name === paramName) ||
+                            device.parameters.find(p => p.id === paramName);
+                if (!param) return;
 
-            map.forEach(({ id, p }) => {
-                const slider = document.getElementById(id);
-                const range = ranges[p];
-                const param = device.parametersById.get(p);
+                const range = parameterRanges[paramName];
+                const step  = range.step || 0;
 
-                /* 初期位置反映 */
-                slider.value = p2s(param.value, range);
+                let isDragging = false;
 
-                slider.addEventListener("input", e => {
-                    param.value = s2p(parseFloat(e.target.value), range);
+                // Param → Slider (0〜100)
+                const paramToSlider = (value) => {
+                    const norm = (value - range.min) / (range.max - range.min);
+                    const pos  = norm * 100;
+                    return range.invert ? (100 - pos) : pos;
+                };
+
+                // Slider(0〜100) → Param
+                const sliderToParam = (sliderValue) => {
+                    const norm = range.invert
+                        ? (100 - sliderValue) / 100
+                        : sliderValue / 100;
+
+                    let raw = range.min + norm * (range.max - range.min);
+
+                    // 飛び飛び（ステップ）に丸める
+                    if (step > 0) {
+                        raw = Math.round(raw / step) * step;
+                    }
+
+                    // 安全のためレンジ内にクリップ
+                    raw = Math.max(range.min, Math.min(range.max, raw));
+                    return raw;
+                };
+
+                // 初期位置：RNBO の現在値をスライダーへ反映
+                slider.value = paramToSlider(param.value);
+
+                // ★ ドラッグ開始 / 終了を検出してフラグを立てる
+                const startDrag = () => { isDragging = true; };
+                const endDrag   = () => { isDragging = false; };
+
+                slider.addEventListener('pointerdown', startDrag);
+                slider.addEventListener('mousedown', startDrag);
+                slider.addEventListener('touchstart', startDrag);
+
+                slider.addEventListener('pointerup', endDrag);
+                slider.addEventListener('mouseup', endDrag);
+                slider.addEventListener('mouseleave', endDrag);
+                slider.addEventListener('touchend', endDrag);
+                slider.addEventListener('touchcancel', endDrag);
+
+                // スライダー操作 → RNBO パラメータ
+                slider.addEventListener('input', (e) => {
+                    const sliderVal = parseFloat(e.target.value);
+                    const newParamVal = sliderToParam(sliderVal);
+                    if (param.value !== newParamVal) {
+                        param.value = newParamVal;
+                    }
                 });
 
-                /* 外部変化時に UI 追従 */
+                // RNBO 側でパラメータが変化した時 → スライダーに反映
                 device.parameterChangeEvent.subscribe(ev => {
-                    if (ev.id === p)
-                        slider.value = p2s(ev.value, range);
+                    // 別パラメータのイベントは無視
+                    if (ev.id !== param.id) return;
+
+                    // ユーザーがドラッグ中は上書きしない（ブルブル防止）
+                    if (isDragging) return;
+
+                    const newSliderVal = paramToSlider(ev.value);
+                    slider.value = newSliderVal;
                 });
             });
         })();
