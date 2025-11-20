@@ -13,20 +13,13 @@ body {
     padding: 40px;
 }
 
-/* Hide unnecessary RNBO default UI */
-#rnbo-clickable-keyboard,
-#rnbo-inports,
-#rnbo-console,
-#rnbo-presets,
-#no-param-label {
-    display: none !important;
-}
-
+/* Title */
 #patcher-title {
     font-size: 48px;
     font-weight: 300;
     margin-bottom: 60px;
     letter-spacing: -1px;
+    color: #000;
 }
 
 /* Layout */
@@ -37,25 +30,26 @@ body {
 
 .controls-container {
     display: flex;
-    gap: 60px;
+    gap: 80px;
     align-items: flex-start;
 }
 
+/* ───────────────────────────── */
+/* Volume Section */
+/* ───────────────────────────── */
+
 .volume-section {
     flex-shrink: 0;
-}
-
-.tuning-section {
-    flex: 1;
+    width: 200px;
 }
 
 .section-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 400;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    color: #000;
 }
 
-/* Volume box */
 .volume-control {
     border: 2px solid #000;
     padding: 30px 40px;
@@ -66,117 +60,178 @@ body {
     align-items: center;
 }
 
+/* labels: high / low */
 .volume-label {
     font-size: 14px;
     font-weight: 400;
+    color: #000;
 }
 
+/* vertical slider area */
 .vertical-slider-container {
-    flex: 1;
+    position: relative;
+    height: 350px;
     display: flex;
     align-items: center;
-    margin: 20px 0;
+    justify-content: center;
 }
 
+/* Vertical slider bar */
 .vertical-slider {
     writing-mode: vertical-lr;
     direction: rtl;
-    width: 8px;
+    width: 6px;
     height: 350px;
-    background: #e0e0e0;
+    background: transparent;
     outline: none;
     cursor: pointer;
+    border: none;
 }
 
+/* 目盛り線を描く */
+.vertical-slider-container::before {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 350px;
+    background-color: #000;
+}
+
+/* 六角形つまみ */
 .vertical-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 60px;
-    height: 80px;
-    background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
-    border: 2px solid #8dd4d6;
-    cursor: pointer;
+    width: 36px;
+    height: 44px;
+    background: #aef2f2;
+    border: 2px solid #000;
     clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
 }
 
 .vertical-slider::-moz-range-thumb {
-    width: 60px;
-    height: 80px;
-    background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
-    border: 2px solid #8dd4d6;
-    cursor: pointer;
+    width: 36px;
+    height: 44px;
+    background: #aef2f2;
+    border: 2px solid #000;
     clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
 }
 
-/* Tuning box */
+/* ───────────────────────────── */
+/* Volume：水色バー（現在は模様） */
+/* ───────────────────────────── */
+
+.fake-meter-bar {
+    position: absolute;
+    right: -50px;  /* Volume ボックス右側に表示 */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;        /* 指定どおり */
+    height: 320px;     /* 指定どおり */
+    background-color: #aef2f2;
+}
+
+
+/* ───────────────────────────── */
+/* Tuning Section */
+/* ───────────────────────────── */
+
+.tuning-section {
+    flex: 1;
+}
+
 .tuning-control {
     border: 2px solid #000;
     padding: 40px;
 }
 
 .slider-group {
-    margin-bottom: 40px;
-}
-
-.slider-group:last-child {
-    margin-bottom: 0;
+    margin-bottom: 50px;
 }
 
 .slider-label-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .slider-label {
     font-size: 16px;
     font-weight: 400;
+    color: #000;
 }
 
+/* スライダー本体 */
 .horizontal-slider-container {
     position: relative;
-    padding: 20px 0;
+    width: 100%;
+    height: 60px;
 }
 
+/* スライダーの黒線 */
+.horizontal-slider-container::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    width: 100%;
+    background-color: #000;
+}
+
+/* 短い縦線（端） */
+.horizontal-slider-container::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 16px;
+    background-color: #000;
+    transform: translateY(-50%);
+}
+
+/* 右端の縦棒（別要素で作る） */
+.horizontal-slider-container .end-marker {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 2px;
+    height: 16px;
+    background-color: #000;
+    transform: translateY(-50%);
+}
+
+/* 実際の input range は透明にする */
 .horizontal-slider {
     -webkit-appearance: none;
     width: 100%;
-    height: 6px;
-    background: #e0e0e0;
+    height: 60px;
+    background: transparent;
+    position: relative;
     cursor: pointer;
 }
 
+/* 六角形つまみ */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 70px;
-    height: 50px;
-    background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
-    border: 2px solid #8dd4d6;
-    cursor: pointer;
+    width: 46px;
+    height: 36px;
+    background: #aef2f2;
+    border: 2px solid #000;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
 .horizontal-slider::-moz-range-thumb {
-    width: 70px;
-    height: 50px;
-    background: linear-gradient(135deg, #b3e5e6 0%, #d4f1f4 100%);
-    border: 2px solid #8dd4d6;
-    cursor: pointer;
+    width: 46px;
+    height: 36px;
+    background: #aef2f2;
+    border: 2px solid #000;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
+/* low / high ラベル */
 .slider-range-labels {
     display: flex;
     justify-content: space-between;
+    margin-top: 10px;
     font-size: 14px;
-    color: #666;
-    margin-top: 8px;
-}
-
-/* Hide RNBO parameter sliders completely */
-#rnbo-parameter-sliders {
-    display: none !important;
-}
-
-#rnbo-parameter-sliders * {
-    display: none !important;
+    color: #000;
 }
