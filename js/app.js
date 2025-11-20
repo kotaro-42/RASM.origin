@@ -173,37 +173,58 @@ function makeSliders(device) {
 
 
 /* 以下はデフォルト（変更なし） */
-function makeInportForm(device) {
+function function makeInportForm(device) {
     const idiv = document.getElementById("rnbo-inports");
     const inportSelect = document.getElementById("inport-select");
     const inportText = document.getElementById("inport-text");
     const inportForm = document.getElementById("inport-form");
-    let inportTag = null;
 
-    const messages = device.messages;
-    const inports = messages.filter(message => message.type === RNBO.MessagePortType.Inport);
+    if (!idiv) return;
 
-    if (inports.length === 0) {
-        idiv.removeChild(document.getElementById("inport-form"));
-        return;
-    } else {
-        idiv.removeChild(document.getElementById("no-inports-label"));
-        inports.forEach(inport => {
-            const option = document.createElement("option");
-            option.innerText = inport.tag;
-            inportSelect.appendChild(option);
-        });
-        inportSelect.onchange = () => inportTag = inportSelect.value;
-        inportTag = inportSelect.value;
+    // RNBO inports を取得
+    const inports = device.messages
+        .filter(m => m.type === RNBO.MessagePortType.Inport);
 
-        inportForm.onsubmit = (ev) => {
-            ev.preventDefault();
-            const values = inportText.value.split(/\s+/).map(s => parseFloat(s));
-            let messageEvent = new RNBO.MessageEvent(RNBO.TimeNow, inportTag, values);
-            device.scheduleEvent(messageEvent);
+    // ---- ★ 安全な removeChild -------------------------------------
+    const safeRemove = (parent, selector) => {
+        const node = parent.querySelector(selector);
+        if (node && node.parentNode === parent) {
+            parent.removeChild(node);
         }
+    };
+    // ----------------------------------------------------------------
+
+    // inport が 0 の場合 → フォームごと削除
+    if (inports.length === 0) {
+        safeRemove(idiv, "#inport-form");
+        safeRemove(idiv, "#no-inports-label");
+        return;
     }
+
+    // inport がある場合
+    safeRemove(idiv, "#no-inports-label");
+
+    // セレクトを生成
+    inports.forEach(inport => {
+        const option = document.createElement("option");
+        option.textContent = inport.tag;
+        inportSelect.appendChild(option);
+    });
+
+    let inportTag = inportSelect.value;
+
+    inportSelect.onchange = () => {
+        inportTag = inportSelect.value;
+    };
+
+    inportForm.onsubmit = (ev) => {
+        ev.preventDefault();
+        const values = inportText.value.split(/\s+/).map(n => parseFloat(n));
+        const evObj = new RNBO.MessageEvent(RNBO.TimeNow, inportTag, values);
+        device.scheduleEvent(evObj);
+    };
 }
+
 
 function attachOutports(device) {
     const outports = device.outports;
