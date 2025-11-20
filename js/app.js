@@ -30,17 +30,6 @@ async function setup() {
         return;
     }
 
-    // --- Dependencies 読み込み ---
-    let dependencies = [];
-    try {
-        const depRes = await fetch("export/dependencies.json");
-        dependencies = await depRes.json();
-        dependencies = dependencies.map(d =>
-            d.file ? { ...d, file: "export/" + d.file } : d
-        );
-    } catch (e) {}
-
-
     // --- Device 作成 ---
     let device;
     try {
@@ -50,10 +39,6 @@ async function setup() {
     } catch (err) {
         console.error("Device creation failed:", err);
         return;
-    }
-
-    if (dependencies.length) {
-        await device.loadDataBufferDependencies(dependencies);
     }
 
     // AudioWorklet → 出力へ
