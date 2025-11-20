@@ -52,3 +52,130 @@ h2, em {
 #rnbo-parameter-sliders > div > input:first-of-type {
     flex-grow: 1;
 }
+
+/* 全体レイアウト */
+.controls-container {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+/* -----------------------------------------------------
+   Volume Box
+----------------------------------------------------- */
+.volume-control {
+    width: 120px;
+    height: 480px;
+    border: 2px solid #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 0;
+}
+
+#volume-slider {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 6px;
+    height: 350px;
+}
+
+/* -----------------------------------------------------
+   Horizontal sliders（黒線・つまみ）
+----------------------------------------------------- */
+
+.slider-group {
+    margin-bottom: 40px;
+}
+
+.slider-group label {
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.slider-group input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 5px;
+    background: #000;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+/* thumb（六角形） */
+.slider-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 60px;
+    height: 40px;
+    background: #c7eef0;
+    border: 2px solid #8dd4d6;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+/* Firefox */
+.slider-group input[type="range"]::-moz-range-thumb {
+    width: 60px;
+    height: 40px;
+    background: #c7eef0;
+    border: 2px solid #8dd4d6;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+/* -----------------------------------------------------
+   メモリ線（ticks）
+----------------------------------------------------- */
+.ticks {
+    position: relative;
+    height: 12px;
+    margin: 8px 0 12px 0;
+}
+
+.ticks div {
+    position: absolute;
+    width: 2px;
+    height: 12px;
+    background: #000;
+}
+
+/* 12分割（Sensitivity） */
+.sensitivity-ticks div { background: #000; }
+.sensitivity-ticks div:nth-child(1) { left: calc(100% * 1/12); }
+.sensitivity-ticks div:nth-child(2) { left: calc(100% * 2/12); }
+.sensitivity-ticks div:nth-child(3) { left: calc(100% * 3/12); }
+.sensitivity-ticks div:nth-child(4) { left: calc(100% * 4/12); }
+.sensitivity-ticks div:nth-child(5) { left: calc(100% * 5/12); }
+.sensitivity-ticks div:nth-child(6) { left: calc(100% * 6/12); }
+.sensitivity-ticks div:nth-child(7) { left: calc(100% * 7/12); }
+.sensitivity-ticks div:nth-child(8) { left: calc(100% * 8/12); }
+.sensitivity-ticks div:nth-child(9) { left: calc(100% * 9/12); }
+.sensitivity-ticks div:nth-child(10){ left: calc(100% * 10/12); }
+.sensitivity-ticks div:nth-child(11){ left: calc(100% * 11/12); }
+
+/* 4分割（Dynamics） */
+.dynamics-ticks div:nth-child(1) { left: 25%; }
+.dynamics-ticks div:nth-child(2) { left: 50%; }
+.dynamics-ticks div:nth-child(3) { left: 75%; }
+
+/* 10分割（Responsiveness & Release） */
+.responsiveness-ticks div:nth-child(n+1) { }
+.responsiveness-ticks div:nth-child(1) { left: 10%; }
+.responsiveness-ticks div:nth-child(2) { left: 20%; }
+.responsiveness-ticks div:nth-child(3) { left: 30%; }
+.responsiveness-ticks div:nth-child(4) { left: 40%; }
+.responsiveness-ticks div:nth-child(5) { left: 50%; }
+.responsiveness-ticks div:nth-child(6) { left: 60%; }
+.responsiveness-ticks div:nth-child(7) { left: 70%; }
+.responsiveness-ticks div:nth-child(8) { left: 80%; }
+.responsiveness-ticks div:nth-child(9) { left: 90%; }
+
+.release-ticks div:nth-child(1) { left: 10%; }
+.release-ticks div:nth-child(2) { left: 20%; }
+.release-ticks div:nth-child(3) { left: 30%; }
+.release-ticks div:nth-child(4) { left: 40%; }
+.release-ticks div:nth-child(5) { left: 50%; }
+.release-ticks div:nth-child(6) { left: 60%; }
+.release-ticks div:nth-child(7) { left: 70%; }
+.release-ticks div:nth-child(8) { left: 80%; }
+.release-ticks div:nth-child(9) { left: 90%; }
