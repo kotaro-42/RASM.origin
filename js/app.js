@@ -58,7 +58,6 @@ async function setup() {
 
     makeSliders(device);
     makeInportForm(device);
-    loadPresets(device, patcher);
     makeMIDIKeyboard(device);
 
     document.body.onclick = () => context.resume();
