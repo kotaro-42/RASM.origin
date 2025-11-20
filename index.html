@@ -50,7 +50,7 @@
                 <h2 class="section-title">Tuning</h2>
                 <div class="tuning-control">
 
-                    <!-- Sensitivity（反転 + 5刻み） -->
+                    <!-- Sensitivity -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">sensitivity</span>
@@ -63,7 +63,7 @@
                         <div class="slider-range-labels"><span>low</span><span>high</span></div>
                     </div>
 
-                    <!-- Dynamics（0〜4 → 5目盛り） -->
+                    <!-- Dynamics -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">dynamics</span>
@@ -76,7 +76,7 @@
                         <div class="slider-range-labels"><span>low</span><span>high</span></div>
                     </div>
 
-                    <!-- Responsiveness（反転 + 10刻み） -->
+                    <!-- Responsiveness -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">responsiveness</span>
@@ -107,7 +107,7 @@
 
         </div>
 
-        <!-- Hidden RNBO Elements（非表示のまま） -->
+        <!-- 不要 UI は空のまま保持（消しても動くが安全のため残す） -->
         <div id="rnbo-clickable-keyboard"><h2></h2></div>
         <div id="rnbo-inports"><h2></h2></div>
         <div id="rnbo-console"><h2></h2></div>
@@ -117,118 +117,8 @@
     </div>
 
     <!-- RNBO scripts -->
-    <script type="text/javascript" src="js/guardrails.js"></script>
-    <script type="text/javascript" src="js/app.js"></script>
-
-    <!-- UI と RNBO を同期させるスクリプト -->
-     <!-- RNBO Parameter Connection Script（完全オリジナル・改訂版） -->
-    <script>
-        (async () => {
-            // rnboDevice / rnboContext の準備待ち
-            while (!window.rnboDevice || !window.rnboContext) {
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-            await new Promise(resolve => setTimeout(resolve, 200));
-
-            const device = window.rnboDevice;
-
-            // パラメータのレンジ + 反転フラグ + ステップ幅
-            const parameterRanges = {
-                volume:        { min: 0,  max: 1,  invert: false, step: 0.01 },
-                sensitivity:   { min: 20, max: 80, invert: true,  step: 5    },  // ★反転＋5刻み
-                responsiveness:{ min: 0,  max: 10, invert: true,  step: 1    },  // ★反転＋1刻み
-                dynamics:      { min: 0,  max: 4,  invert: false, step: 1    },
-                release:       { min: 0,  max: 10, invert: false, step: 1    }
-            };
-
-            // HTML スライダーと RNBO パラメータ名の対応
-            const sliderMappings = [
-                { sliderId: 'volume-slider',          paramName: 'volume' },
-                { sliderId: 'sensitivity-slider',     paramName: 'sensitivity' },
-                { sliderId: 'dynamics-slider',        paramName: 'dynamics' },
-                { sliderId: 'responsiveness-slider',  paramName: 'responsiveness' },
-                { sliderId: 'release-slider',         paramName: 'release' }
-            ];
-
-            sliderMappings.forEach(({ sliderId, paramName }) => {
-                const slider = document.getElementById(sliderId);
-                if (!slider) return;
-
-                // RNBO 側のパラメータを取得
-                let param = device.parameters.find(p => p.name === paramName) ||
-                            device.parameters.find(p => p.id === paramName);
-                if (!param) return;
-
-                const range = parameterRanges[paramName];
-                const step  = range.step || 0;
-
-                let isDragging = false;
-
-                // Param → Slider (0〜100)
-                const paramToSlider = (value) => {
-                    const norm = (value - range.min) / (range.max - range.min);
-                    const pos  = norm * 100;
-                    return range.invert ? (100 - pos) : pos;
-                };
-
-                // Slider(0〜100) → Param
-                const sliderToParam = (sliderValue) => {
-                    const norm = range.invert
-                        ? (100 - sliderValue) / 100
-                        : sliderValue / 100;
-
-                    let raw = range.min + norm * (range.max - range.min);
-
-                    // 飛び飛び（ステップ）に丸める
-                    if (step > 0) {
-                        raw = Math.round(raw / step) * step;
-                    }
-
-                    // 安全のためレンジ内にクリップ
-                    raw = Math.max(range.min, Math.min(range.max, raw));
-                    return raw;
-                };
-
-                // 初期位置：RNBO の現在値をスライダーへ反映
-                slider.value = paramToSlider(param.value);
-
-                // ★ ドラッグ開始 / 終了を検出してフラグを立てる
-                const startDrag = () => { isDragging = true; };
-                const endDrag   = () => { isDragging = false; };
-
-                slider.addEventListener('pointerdown', startDrag);
-                slider.addEventListener('mousedown', startDrag);
-                slider.addEventListener('touchstart', startDrag);
-
-                slider.addEventListener('pointerup', endDrag);
-                slider.addEventListener('mouseup', endDrag);
-                slider.addEventListener('mouseleave', endDrag);
-                slider.addEventListener('touchend', endDrag);
-                slider.addEventListener('touchcancel', endDrag);
-
-                // スライダー操作 → RNBO パラメータ
-                slider.addEventListener('input', (e) => {
-                    const sliderVal = parseFloat(e.target.value);
-                    const newParamVal = sliderToParam(sliderVal);
-                    if (param.value !== newParamVal) {
-                        param.value = newParamVal;
-                    }
-                });
-
-                // RNBO 側でパラメータが変化した時 → スライダーに反映
-                device.parameterChangeEvent.subscribe(ev => {
-                    // 別パラメータのイベントは無視
-                    if (ev.id !== param.id) return;
-
-                    // ユーザーがドラッグ中は上書きしない（ブルブル防止）
-                    if (isDragging) return;
-
-                    const newSliderVal = paramToSlider(ev.value);
-                    slider.value = newSliderVal;
-                });
-            });
-        })();
-    </script>
+    <script src="js/guardrails.js"></script>
+    <script src="js/app.js"></script>
 
 </body>
 </html>
