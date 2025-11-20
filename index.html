@@ -6,6 +6,17 @@
     <meta name="theme-color" content="#000000">
     <link rel="stylesheet" href="style/style.css">
     <title>RASM origin</title>
+
+    <style>
+        /* RNBO 標準UIは非表示（DOMは保持） */
+        #rnbo-clickable-keyboard,
+        #rnbo-inports,
+        #rnbo-console,
+        #rnbo-presets,
+        #rnbo-parameter-sliders {
+            display:none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +32,7 @@
                 <h2>Volume</h2>
                 <div class="volume-control">
                     <span class="vol-high">high</span>
-                    <input type="range" id="volume-slider" min="0" max="100" value="40" orient="vertical">
+                    <input type="range" id="volume-slider" min="0" max="100" value="40">
                     <span class="vol-low">low</span>
                 </div>
             </div>
@@ -62,12 +73,36 @@
 
         </div>
 
-        <!-- RNBO hidden elements (そのまま必要) -->
-        <div id="rnbo-clickable-keyboard"><h2>MIDI Keyboard</h2></div>
-        <div id="rnbo-inports"><h2>Inports</h2></div>
-        <div id="rnbo-console"><h2>Outports</h2></div>
-        <div id="rnbo-presets"><h2>Presets</h2></div>
-        <div id="rnbo-parameter-sliders"><h2>Parameters</h2></div>
+        <!-- ----------------------------------------------------
+             RNBO hidden elements（DOM 必須／UI 非表示）
+             → app.js がこれを参照するので絶対に残す
+        ----------------------------------------------------- -->
+
+        <div id="rnbo-clickable-keyboard">
+            <div>dummy</div>
+        </div>
+
+        <div id="rnbo-inports">
+            <form id="inport-form">
+                <div>
+                    <select id="inport-select"></select>
+                    <input id="inport-text" type="text">
+                    <input id="inport-submit" type="submit" value="Send">
+                </div>
+            </form>
+        </div>
+
+        <div id="rnbo-console">
+            <div id="rnbo-console-div">
+                <p id="rnbo-console-readout"></p>
+            </div>
+        </div>
+
+        <div id="rnbo-presets">
+            <select id="preset-select"></select>
+        </div>
+
+        <div id="rnbo-parameter-sliders"></div>
 
     </div>
 
