@@ -22,6 +22,14 @@ body {
     color: #000;
 }
 
+#custom-title {
+    font-size: 48px;
+    font-weight: 300;
+    margin-bottom: 60px;
+    letter-spacing: -1px;
+    color: #000;
+}
+
 /* Layout */
 #rnbo-root {
     max-width: 1400px;
@@ -266,5 +274,9 @@ h1#patcher-title {
 
 h1#patcher-title + span,
 h1#patcher-title + div {
+    display: none !important;
+}
+
+#patcher-title {
     display: none !important;
 }
