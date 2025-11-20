@@ -235,3 +235,36 @@ body {
     font-size: 14px;
     color: #000;
 }
+
+/* ───────────────────────────── */
+/* RNBO デフォルト UI を完全に非表示 */
+/* ───────────────────────────── */
+
+#rnbo-clickable-keyboard,
+#rnbo-inports,
+#rnbo-console,
+#rnbo-presets,
+#rnbo-parameter-sliders,
+#no-param-label {
+    display: none !important;
+}
+
+#rnbo-parameter-sliders * {
+    display: none !important;
+}
+
+/* RNBO が上書きしてくる “patcher-title” を非表示 */
+#patcher-title::after,
+#patcher-title + * {
+    display: none !important;
+}
+
+/* RNBO によって自動生成される patcher のバージョン表記を強制的に非表示 */
+h1#patcher-title {
+    display: block !important;     /* ← あなたのタイトルは残す */
+}
+
+h1#patcher-title + span,
+h1#patcher-title + div {
+    display: none !important;
+}
