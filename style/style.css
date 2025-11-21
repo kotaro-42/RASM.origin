@@ -32,8 +32,7 @@ body {
     align-items: flex-start;
 }
 
-/* ───────── Volume ───────── */
-
+/* Volume */
 .volume-section {
     width: 200px;
 }
@@ -114,8 +113,7 @@ body {
     background-color: #aef2f2;
 }
 
-/* ───────── Tuning ───────── */
-
+/* Tuning */
 .tuning-section {
     flex: 1;
 }
@@ -147,18 +145,24 @@ body {
     height: 60px;
 }
 
-/* input range 本体は透明 */
+.horizontal-slider-container::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background: #000;
+    transform: translateY(-50%);
+}
+
 .horizontal-slider {
     -webkit-appearance: none;
     width: 100%;
     height: 60px;
     background: transparent;
     cursor: pointer;
-    position: relative;
-    z-index: 2;  /* tick の上にハンドルを表示 */
 }
 
-/* 六角形つまみ */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 46px;
@@ -184,60 +188,48 @@ body {
     color: #000;
 }
 
-/* ==========================
-   ★ Ticks（目盛り）完全版
-   ========================== */
-
-/* ==========================
-   ★ Ticks（目盛り）完全版
-   ========================== */
+/* ======================================
+   ★★★ TICKS（目盛り）完全補正版 ★★★
+   ====================================== */
 
 .slider-ticks {
+    --steps: 10;
+    --tick-count: calc(var(--steps) + 1);
     position: absolute;
     top: 50%;
     left: 0;
-    width: 100%;
-    height: 24px;              /* 目盛りの縦の長さ */
-    transform: translateY(-50%);
-    pointer-events: none;
-    --steps: 10;               /* JS から上書きされるデフォルト */
-    z-index: 1;
-}
 
-/* ベースライン（横線） */
-.slider-ticks::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
+    /* つまみ中央合わせ補正：thumb 46px → 中心23px */
+    padding-left: 23px;
+    padding-right: 23px;
+
+    width: calc(100% - 46px);
     height: 2px;
-    background-color: #000;
     transform: translateY(-50%);
 }
 
-/* 右端の縦線（100% の位置） */
+/* 端点2つ */
+.slider-ticks::before,
 .slider-ticks::after {
     content: "";
     position: absolute;
-    top: 3px;                  /* ベースラインから上下に少し出す */
-    right: 0;
     width: 2px;
     height: 18px;
     background-color: #000;
+    top: -8px;
 }
 
-/* 中間＆左端の縦線（0〜(steps-1)/steps） */
+.slider-ticks::before { left: 0; }
+.slider-ticks::after  { right: 0; }
+
+/* 目盛り生成（tick-count 本） */
 .slider-ticks {
     background:
         repeating-linear-gradient(
             to right,
-            #000,
-            #000 2px,
-            transparent 2px,
-            transparent calc(100% / var(--steps))
+            transparent,
+            transparent calc((100% / var(--tick-count)) - 2px),
+            #000 calc((100% / var(--tick-count)) - 2px),
+            #000 calc(100% / var(--tick-count))
         );
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: 0 3px;  /* ちょっと下げてベースラインとバランスを取る */
 }
