@@ -135,3 +135,8 @@ function connectCustomSliders(device) {
 }
 
 setup();
+
+document.querySelectorAll(".slider-ticks").forEach(ticks => {
+    const steps = Number(ticks.dataset.steps);
+    ticks.style.setProperty("--steps", steps);
+});
