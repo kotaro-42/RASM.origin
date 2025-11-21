@@ -13,15 +13,6 @@ body {
     padding: 40px;
 }
 
-/* Title */
-#patcher-title {
-    font-size: 48px;
-    font-weight: 300;
-    margin-bottom: 60px;
-    letter-spacing: -1px;
-    color: #000;
-}
-
 #custom-title {
     font-size: 48px;
     font-weight: 300;
@@ -30,7 +21,6 @@ body {
     color: #000;
 }
 
-/* Layout */
 #rnbo-root {
     max-width: 1400px;
     margin: 0 auto;
@@ -42,12 +32,8 @@ body {
     align-items: flex-start;
 }
 
-/* ───────────────────────────── */
-/* Volume Section */
-/* ───────────────────────────── */
-
+/* Volume */
 .volume-section {
-    flex-shrink: 0;
     width: 200px;
 }
 
@@ -68,14 +54,12 @@ body {
     align-items: center;
 }
 
-/* labels: high / low */
 .volume-label {
     font-size: 14px;
     font-weight: 400;
     color: #000;
 }
 
-/* vertical slider area */
 .vertical-slider-container {
     position: relative;
     height: 350px;
@@ -84,28 +68,24 @@ body {
     justify-content: center;
 }
 
-/* Vertical slider bar */
 .vertical-slider {
     writing-mode: vertical-lr;
     direction: rtl;
     width: 6px;
     height: 350px;
     background: transparent;
-    outline: none;
-    cursor: pointer;
     border: none;
+    cursor: pointer;
 }
 
-/* 目盛り線を描く */
 .vertical-slider-container::before {
     content: "";
-    position: absolute;
     width: 2px;
     height: 350px;
     background-color: #000;
+    position: absolute;
 }
 
-/* 六角形つまみ */
 .vertical-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 36px;
@@ -123,25 +103,17 @@ body {
     clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
 }
 
-/* ───────────────────────────── */
-/* Volume：水色バー（現在は模様） */
-/* ───────────────────────────── */
-
 .fake-meter-bar {
     position: absolute;
-    right: -50px;  /* Volume ボックス右側に表示 */
+    right: -50px;
     top: 50%;
     transform: translateY(-50%);
-    width: 6px;        /* 指定どおり */
-    height: 320px;     /* 指定どおり */
+    width: 6px;
+    height: 320px;
     background-color: #aef2f2;
 }
 
-
-/* ───────────────────────────── */
-/* Tuning Section */
-/* ───────────────────────────── */
-
+/* Tuning */
 .tuning-section {
     flex: 1;
 }
@@ -167,57 +139,30 @@ body {
     color: #000;
 }
 
-/* スライダー本体 */
 .horizontal-slider-container {
     position: relative;
     width: 100%;
     height: 60px;
 }
 
-/* スライダーの黒線 */
 .horizontal-slider-container::before {
     content: "";
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    height: 2px;
     width: 100%;
-    background-color: #000;
-}
-
-/* 短い縦線（端） */
-.horizontal-slider-container::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    width: 2px;
-    height: 16px;
-    background-color: #000;
+    height: 2px;
+    background: #000;
     transform: translateY(-50%);
 }
 
-/* 右端の縦棒（別要素で作る） */
-.horizontal-slider-container .end-marker {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    width: 2px;
-    height: 16px;
-    background-color: #000;
-    transform: translateY(-50%);
-}
-
-/* 実際の input range は透明にする */
 .horizontal-slider {
     -webkit-appearance: none;
     width: 100%;
     height: 60px;
     background: transparent;
-    position: relative;
     cursor: pointer;
 }
 
-/* 六角形つまみ */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 46px;
@@ -235,7 +180,6 @@ body {
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
-/* low / high ラベル */
 .slider-range-labels {
     display: flex;
     justify-content: space-between;
@@ -244,45 +188,12 @@ body {
     color: #000;
 }
 
-/* ───────────────────────────── */
-/* RNBO デフォルト UI を完全に非表示 */
-/* ───────────────────────────── */
+/* ================================
+   ★★★ TICKS（目盛り）完全版 ★★★
+   ================================ */
 
-#rnbo-clickable-keyboard,
-#rnbo-inports,
-#rnbo-console,
-#rnbo-presets,
-#rnbo-parameter-sliders,
-#no-param-label {
-    display: none !important;
-}
-
-#rnbo-parameter-sliders * {
-    display: none !important;
-}
-
-/* RNBO が上書きしてくる “patcher-title” を非表示 */
-#patcher-title::after,
-#patcher-title + * {
-    display: none !important;
-}
-
-/* RNBO によって自動生成される patcher のバージョン表記を強制的に非表示 */
-h1#patcher-title {
-    display: block !important;     /* ← あなたのタイトルは残す */
-}
-
-h1#patcher-title + span,
-h1#patcher-title + div {
-    display: none !important;
-}
-
-#patcher-title {
-    display: none !important;
-}
-
-/*======= Ticks（目盛り線） - horizontal ========*/
 .slider-ticks {
+    --steps: 10; /* default fallback */
     position: absolute;
     top: 50%;
     left: 0;
@@ -291,6 +202,7 @@ h1#patcher-title + div {
     transform: translateY(-50%);
 }
 
+/* 両端の縦線 */
 .slider-ticks::before,
 .slider-ticks::after {
     content: "";
@@ -304,27 +216,19 @@ h1#patcher-title + div {
 .slider-ticks::before { left: 0; }
 .slider-ticks::after  { right: 0; }
 
-/* ★ ステップ数に応じて中間目盛りを生成 */
-.slider-ticks[data-steps="5"] {
-    --num: 5; /* sensitivity → 20 40 60 80 →4本の目盛り */
+/* data-steps に応じて本数を決定（steps+1本） */
+.slider-ticks[data-steps] {
+    --steps: attr(data-steps number);
 }
 
-.slider-ticks[data-steps="10"] {
-    --num: 10; /* responsivenessなど→0〜10 の10間隔 */
-}
-
-.slider-ticks[data-steps="4"] {
-    --num: 4; /* dynamics（0〜4） */
-}
-
-/* 実際の描画 */
+/* 中間目盛り生成 */
 .slider-ticks {
     background:
         repeating-linear-gradient(
             to right,
-            #000,
-            #000 2px,
-            transparent 2px,
-            transparent calc((100% / var(--num)))
+            transparent,
+            transparent calc(100% / (var(--steps) + 1) - 2px),
+            #000 calc(100% / (var(--steps) + 1) - 2px),
+            #000 calc(100% / (var(--steps) + 1))
         );
 }
