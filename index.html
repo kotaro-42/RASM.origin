@@ -27,11 +27,16 @@
 
                     <div class="vertical-slider-container">
 
-                        <input type="range"
-                               id="volume-slider"
-                               class="vertical-slider"
-                               min="0" max="100">
+                        <!-- Volume（連続パラメータ） -->
+                        <input
+                            type="range"
+                            id="volume-slider"
+                            class="vertical-slider"
+                            min="0"
+                            max="100"
+                            step="1">
 
+                        <!-- Fake Meter（現状は飾り） -->
                         <div class="fake-meter-bar"></div>
                     </div>
 
@@ -44,52 +49,86 @@
                 <h2 class="section-title">Tuning</h2>
                 <div class="tuning-control">
 
-                    <!-- Sensitivity -->
+                    <!-- Sensitivity（12 区間）-->
                     <div class="slider-group">
-                        <div class="slider-label-container"><span class="slider-label">sensitivity</span></div>
-                        <div class="horizontal-slider-container">
-                            <div class="slider-ticks" data-steps="12"></div>
-                            <input type="range" id="sensitivity-slider"
-                                   class="horizontal-slider" min="0" max="100">
+                        <div class="slider-label-container">
+                            <span class="slider-label">sensitivity</span>
                         </div>
-                        <div class="slider-range-labels"><span>low</span><span>high</span></div>
+                        <div class="horizontal-slider-container">
+                            <!-- 区間数 = 12（→ ticks は 13 本） -->
+                            <div class="slider-ticks" data-steps="12"></div>
+                            <input
+                                type="range"
+                                id="sensitivity-slider"
+                                class="horizontal-slider"
+                                min="0"
+                                max="100">
+                        </div>
+                        <div class="slider-range-labels">
+                            <span>low</span><span>high</span>
+                        </div>
                     </div>
 
-                    <!-- Dynamics -->
+                    <!-- Dynamics（4 区間）-->
                     <div class="slider-group">
-                        <div class="slider-label-container"><span class="slider-label">dynamics</span></div>
+                        <div class="slider-label-container">
+                            <span class="slider-label">dynamics</span>
+                        </div>
                         <div class="horizontal-slider-container">
                             <div class="slider-ticks" data-steps="4"></div>
-                            <input type="range" id="dynamics-slider"
-                                   class="horizontal-slider" min="0" max="100">
+                            <input
+                                type="range"
+                                id="dynamics-slider"
+                                class="horizontal-slider"
+                                min="0"
+                                max="100">
                         </div>
-                        <div class="slider-range-labels"><span>low</span><span>high</span></div>
+                        <div class="slider-range-labels">
+                            <span>low</span><span>high</span>
+                        </div>
                     </div>
 
-                    <!-- Responsiveness -->
+                    <!-- Responsiveness（10 区間）-->
                     <div class="slider-group">
-                        <div class="slider-label-container"><span class="slider-label">responsiveness</span></div>
+                        <div class="slider-label-container">
+                            <span class="slider-label">responsiveness</span>
+                        </div>
                         <div class="horizontal-slider-container">
                             <div class="slider-ticks" data-steps="10"></div>
-                            <input type="range" id="responsiveness-slider"
-                                   class="horizontal-slider" min="0" max="100">
+                            <input
+                                type="range"
+                                id="responsiveness-slider"
+                                class="horizontal-slider"
+                                min="0"
+                                max="100">
                         </div>
-                        <div class="slider-range-labels"><span>low</span><span>high</span></div>
+                        <div class="slider-range-labels">
+                            <span>low</span><span>high</span>
+                        </div>
                     </div>
 
-                    <!-- Release -->
+                    <!-- Release（10 区間）-->
                     <div class="slider-group">
-                        <div class="slider-label-container"><span class="slider-label">release</span></div>
+                        <div class="slider-label-container">
+                            <span class="slider-label">release</span>
+                        </div>
                         <div class="horizontal-slider-container">
                             <div class="slider-ticks" data-steps="10"></div>
-                            <input type="range" id="release-slider"
-                                   class="horizontal-slider" min="0" max="100">
+                            <input
+                                type="range"
+                                id="release-slider"
+                                class="horizontal-slider"
+                                min="0"
+                                max="100">
                         </div>
-                        <div class="slider-range-labels"><span>short</span><span>long</span></div>
+                        <div class="slider-range-labels">
+                            <span>short</span><span>long</span>
+                        </div>
                     </div>
 
                 </div>
             </div>
+
         </div>
     </div>
 
