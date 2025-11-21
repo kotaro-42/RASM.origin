@@ -204,9 +204,8 @@ body {
 
     --steps: 10;
 
-    /* 右端が切れないように +1px */
     background-image:
-        linear-gradient(#000, #000),                       /* 中央の横線 */
+        linear-gradient(#000, #000),
         repeating-linear-gradient(
             to right,
             #000,
@@ -214,16 +213,18 @@ body {
             transparent 2px,
             transparent calc(100% / var(--steps))
         );
+
     background-repeat: no-repeat, repeat;
     background-size:
         100% 2px,
         calc(100% + 1px) 100%;
+
     background-position:
         0 50%,
         0 0;
 }
 
-/* 右端の強制目盛り（保険） */
+/* ★これが本来は外側に存在する必要がある */
 .slider-ticks::after {
     content: "";
     position: absolute;
