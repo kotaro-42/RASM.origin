@@ -161,10 +161,9 @@ body {
 /* 六角形つまみ */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 46px;
-    height: 36px;
+    width: 30px;
+    height: 20px;
     background: #aef2f2;
-    border: 2px solid #000;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
