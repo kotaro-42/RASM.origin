@@ -141,6 +141,10 @@ body {
     color: #000;
 }
 
+/* -------------------------
+   Slider Base
+------------------------- */
+
 .horizontal-slider-container {
     position: relative;
     width: 100%;
@@ -165,12 +169,12 @@ body {
     height: 20px;
     background: #aef2f2;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    border: 2px solid #000
+    border: 2px solid #000;
 }
 
 .horizontal-slider::-moz-range-thumb {
-    width: 46px;
-    height: 36px;
+    width: 30px;
+    height: 20px;
     background: #aef2f2;
     border: 2px solid #000;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
@@ -185,7 +189,7 @@ body {
 }
 
 /* ==========================
-   ★ Ticks（目盛り）完全版
+   ★ Ticks（目盛り）
    ========================== */
 
 .slider-ticks {
@@ -200,7 +204,26 @@ body {
 
     --steps: 10;
 
-/* 右端に必ず1本追加（確実に線が出る保険） */
+    /* 右端が切れないように +1px */
+    background-image:
+        linear-gradient(#000, #000),                       /* 中央の横線 */
+        repeating-linear-gradient(
+            to right,
+            #000,
+            #000 2px,
+            transparent 2px,
+            transparent calc(100% / var(--steps))
+        );
+    background-repeat: no-repeat, repeat;
+    background-size:
+        100% 2px,
+        calc(100% + 1px) 100%;
+    background-position:
+        0 50%,
+        0 0;
+}
+
+/* 右端の強制目盛り（保険） */
 .slider-ticks::after {
     content: "";
     position: absolute;
@@ -209,24 +232,4 @@ body {
     width: 2px;
     height: 100%;
     background: #000;
-}
-    /* 基本レイヤー：横線 */
-    background-image:
-        linear-gradient(#000, #000),
-        repeating-linear-gradient(
-            to right,
-            #000,
-            #000 2px,
-            transparent 2px,
-            transparent calc((100% / var(--steps)))
-        );
-
-    background-repeat: no-repeat, repeat;
-    background-size:
-        100% 2px,
-        calc(100% + 1px) 100%;   /* ← 右端の線が欠けないように +1px */
-
-    background-position:
-        0 50%,
-        0 0;
 }
