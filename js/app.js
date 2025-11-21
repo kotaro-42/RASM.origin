@@ -98,6 +98,8 @@ function generateAllTicks() {
         const steps = Number(ticks.dataset.steps);
         const slider = ticks.parentElement.querySelector(".horizontal-slider");
         if (steps >= 1 && slider) {
+            // CSS変数 --steps を設定
+            ticks.style.setProperty('--steps', steps);
             generateTicksFor(ticks, steps, slider);
         }
     });
