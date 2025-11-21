@@ -113,8 +113,11 @@ function connectCustomSliders(device) {
         // 0–100 の slider 空間におけるステップ幅
         // → (param.max - param.min) を spec.step で割った区間数に対応
         if (spec.step > 0 && spec.max > spec.min) {
-            const sliderStep = 100 * spec.step / (spec.max - spec.min);
-            ui.step = sliderStep; // これで UI も飛び飛びにスナップ
+            // 区間数（steps） = (max - min) / step
+            const intervals = (spec.max - spec.min) / spec.step; // sensitivity: (80-20)/5 = 12
+            const sliderStep = 100 / intervals;                  // 0〜100 を12分割 → 13段階
+        
+            ui.step = sliderStep;
         }
 
         // Param → Slider
