@@ -1,3 +1,7 @@
+// =====================================
+// RNBO Web Audio Device Setup
+// =====================================
+
 async function setup() {
     const patchURL = "export/rasm_origin.json";
 
@@ -31,7 +35,7 @@ async function setup() {
 
     device.node.connect(out);
 
-    // Mic
+    // Mic input
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mic = context.createMediaStreamSource(stream);
@@ -43,17 +47,16 @@ async function setup() {
     // Resume on click
     document.body.onclick = () => context.resume();
 
-    // UI と RNBO を接続
-    connectCustomSliders(device);
-
-    // Ticks 用 CSS 変数を data-steps から注入
-    initSliderTicks();
+    // 呼び出し順
+    connectCustomSliders(device);  // RNBO param <-> Slider
+    generateAllTicks();            // DOM ticks を全スライダーへ
 }
 
 
-// -------------------------
+
+// =====================================
 // RNBO script loader
-// -------------------------
+// =====================================
 function loadRNBOScript(version) {
     return new Promise((resolve, reject) => {
         const el = document.createElement("script");
@@ -65,59 +68,77 @@ function loadRNBOScript(version) {
 }
 
 
-// -------------------------
-// Ticks 初期化（CSS変数 --steps をセット）
-// -------------------------
-function initSliderTicks() {
+
+// =====================================
+// DOM ticks generator（完全版）
+// =====================================
+// steps = 区間数 → ticks = steps + 1
+// 例：12 steps → 13 ticks
+function generateTicksFor(container, steps, slider) {
+    container.innerHTML = ""; // 初期化
+
+    const count = steps + 1;
+
+    for (let i = 0; i < count; i++) {
+        const t = document.createElement("div");
+        t.className = "tick";
+
+        // 位置：スライダーの 0 → 100 に対して線の中心を対応
+        const pos = (i / steps) * 100;
+        t.style.left = `calc(${pos}% )`;
+
+        container.appendChild(t);
+    }
+}
+
+
+// 全スライダーに ticks を生成
+function generateAllTicks() {
     document.querySelectorAll(".slider-ticks").forEach(ticks => {
         const steps = Number(ticks.dataset.steps);
-        if (!isNaN(steps) && steps > 0) {
-            // 区間数 = steps → CSS 側は var(--steps) を使う
-            ticks.style.setProperty("--steps", steps);
+        const slider = ticks.parentElement.querySelector(".horizontal-slider");
+        if (steps >= 1 && slider) {
+            generateTicksFor(ticks, steps, slider);
         }
     });
 }
 
 
-// -------------------------
-// Custom Slider ↔ RNBO mapping
-// -------------------------
+
+// =====================================
+// RNBO <-> Custom Slider Mapping
+// =====================================
 function connectCustomSliders(device) {
 
-    // RNBO パラメータ仕様
+    // param spec
     const specs = {
         volume:         { min: 0,  max: 1,  invert: false, step: 0.01 },
-        sensitivity:    { min: 20, max: 80, invert: true,  step: 5    }, // 20–80, 5刻み（12区間）
-        dynamics:       { min: 0,  max: 4,  invert: false, step: 1    }, // 0–4, 1刻み（4区間）
-        responsiveness: { min: 0,  max: 10, invert: true,  step: 1    }, // 0–10, 1刻み（10区間）
+
+        sensitivity:    { min: 20, max: 80, invert: true,  step: 5    }, // 20〜80, 12区間
+        dynamics:       { min: 0,  max: 4,  invert: false, step: 1    }, // 0〜4
+        responsiveness: { min: 0,  max: 10, invert: true,  step: 1    },
         release:        { min: 0,  max: 10, invert: false, step: 1    }
     };
 
     const mapping = [
-        { id: "volume-slider",         param: "volume" },
-        { id: "sensitivity-slider",    param: "sensitivity" },
-        { id: "dynamics-slider",       param: "dynamics" },
-        { id: "responsiveness-slider", param: "responsiveness" },
-        { id: "release-slider",        param: "release" }
+        { ui: "volume-slider",         param: "volume" },
+        { ui: "sensitivity-slider",    param: "sensitivity" },
+        { ui: "dynamics-slider",       param: "dynamics" },
+        { ui: "responsiveness-slider", param: "responsiveness" },
+        { ui: "release-slider",        param: "release" }
     ];
 
-    mapping.forEach(({ id, param }) => {
-        const ui = document.getElementById(id);
-        if (!ui) return;
-
+    mapping.forEach(({ ui, param }) => {
+        const slider = document.getElementById(ui);
         const p = device.parameters.find(x => x.name === param);
-        if (!p) return;
+        if (!slider || !p) return;
 
         const spec = specs[param];
 
-        // 0–100 の slider 空間におけるステップ幅
-        // → (param.max - param.min) を spec.step で割った区間数に対応
-        if (spec.step > 0 && spec.max > spec.min) {
-            // 区間数（steps） = (max - min) / step
-            const intervals = (spec.max - spec.min) / spec.step; // sensitivity: (80-20)/5 = 12
-            const sliderStep = 100 / intervals;                  // 0〜100 を12分割 → 13段階
-        
-            ui.step = sliderStep;
+        // 0〜100 の slider 空間におけるステップ幅
+        if (spec.step > 0) {
+            const intervals = (spec.max - spec.min) / spec.step;
+            slider.step = 100 / intervals;
         }
 
         // Param → Slider
@@ -131,29 +152,28 @@ function connectCustomSliders(device) {
         const sliderToParam = (v) => {
             let norm = spec.invert ? (100 - v) / 100 : v / 100;
             let raw = spec.min + norm * (spec.max - spec.min);
-
-            if (spec.step > 0) {
-                raw = Math.round(raw / spec.step) * spec.step;
-            }
-
+            raw = Math.round(raw / spec.step) * spec.step; // スナップ
             return Math.min(spec.max, Math.max(spec.min, raw));
         };
 
-        // 初期位置：RNBO の現在値を UI に反映（初期値は RNBO 側を優先）
-        ui.value = paramToSlider(p.value);
+        // 初期値反映：RNBO の値を UI に
+        slider.value = paramToSlider(p.value);
 
         // UI → RNBO
-        ui.addEventListener("input", (e) => {
-            const val = sliderToParam(parseFloat(e.target.value));
-            p.value = val;
+        slider.addEventListener("input", (e) => {
+            p.value = sliderToParam(parseFloat(e.target.value));
         });
 
-        // RNBO → UI（外部から param が変わったときも追従）
+        // RNBO → UI（外部から更新されたら追随）
         device.parameterChangeEvent.subscribe(ev => {
-            if (ev.id !== p.id) return;
-            ui.value = paramToSlider(ev.value);
+            if (ev.id === p.id) {
+                slider.value = paramToSlider(ev.value);
+            }
         });
     });
 }
 
+
+
+// =====================================
 setup();
