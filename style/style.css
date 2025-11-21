@@ -209,27 +209,42 @@ body {
 }
 
 /* 端点2つ */
+/* ================================
+   ★ TICKS（目盛り）安定版
+   ================================ */
+
+.slider-ticks {
+    position: absolute;
+    left: 0;
+    bottom: 29px;         /* スライダー線と中央揃え */
+    width: 100%;
+    height: 0;
+    pointer-events: none;
+}
+
+/* 端点（必ず中央に合う） */
 .slider-ticks::before,
 .slider-ticks::after {
     content: "";
     position: absolute;
     width: 2px;
     height: 18px;
-    background-color: #000;
+    background: #000;
     top: -8px;
 }
 
 .slider-ticks::before { left: 0; }
 .slider-ticks::after  { right: 0; }
 
-/* 目盛り生成（tick-count 本） */
+/* 中間 ticks（steps 個 → steps+1 本表示） */
 .slider-ticks {
+    --steps: 10; /* JSで上書きされる */
     background:
         repeating-linear-gradient(
             to right,
-            transparent,
-            transparent calc((100% / var(--tick-count)) - 2px),
-            #000 calc((100% / var(--tick-count)) - 2px),
-            #000 calc(100% / var(--tick-count))
+            #000,
+            #000 2px,
+            transparent 2px,
+            transparent calc(100% / var(--steps))
         );
 }
