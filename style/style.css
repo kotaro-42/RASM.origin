@@ -166,31 +166,32 @@ body {
 /* スライダー本体（透明＋中央に線だけ） */
 .horizontal-slider {
     -webkit-appearance: none;
-    width: 100%;             /* content 幅 = container 幅 - padding */
-    height: 60px;
+    width: 100%;
     background: transparent;
-    cursor: pointer;
     position: relative;
 }
 
-/* WebKit ノブ → 水色の点 */
+/* 丸の中心を線に合わせる */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    margin-top: 0;
+    width: 20px;      /* 丸の直径 */
+    height: 20px;
+    background: #00aaff;
     border-radius: 50%;
-    background: #1ea7ff;
     border: 2px solid #000;
+
+    /* ★これが中心合わせの絶対必須設定 */
+    transform: translateX(calc(-10px)); /* -半径 */
 }
 
-/* Firefox ノブ → 水色の点 */
 .horizontal-slider::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
+    background: #00aaff;
     border-radius: 50%;
-    background: #1ea7ff;
     border: 2px solid #000;
+
+    transform: translateX(calc(-10px));
 }
 
 /* low / high ラベル */
