@@ -202,7 +202,7 @@ body {
     pointer-events: none;
     z-index: 1;
 
-    --steps: 5;
+    --steps: 10;
 
     background-image:
         linear-gradient(#000, #000),
