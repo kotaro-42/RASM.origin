@@ -188,20 +188,48 @@ body {
    ★ Ticks（目盛り）完全版
    ========================== */
 
+/* ==========================
+   ★ Ticks（目盛り）完全版
+   ========================== */
+
 .slider-ticks {
     position: absolute;
     top: 50%;
     left: 0;
     width: 100%;
-    height: 24px;               /* 目盛りの縦の長さ */
+    height: 24px;              /* 目盛りの縦の長さ */
     transform: translateY(-50%);
-    --steps: 10;                 /* JS から上書きされるデフォルト */
     pointer-events: none;
+    --steps: 10;               /* JS から上書きされるデフォルト */
     z-index: 1;
-    /* 1つ目: 横線（ベースライン）
-       2つ目: 縦の目盛り線（steps に応じた本数） */
-    background-image:
-        linear-gradient(#000, #000),
+}
+
+/* ベースライン（横線） */
+.slider-ticks::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #000;
+    transform: translateY(-50%);
+}
+
+/* 右端の縦線（100% の位置） */
+.slider-ticks::after {
+    content: "";
+    position: absolute;
+    top: 3px;                  /* ベースラインから上下に少し出す */
+    right: 0;
+    width: 2px;
+    height: 18px;
+    background-color: #000;
+}
+
+/* 中間＆左端の縦線（0〜(steps-1)/steps） */
+.slider-ticks {
+    background:
         repeating-linear-gradient(
             to right,
             #000,
@@ -209,11 +237,7 @@ body {
             transparent 2px,
             transparent calc(100% / var(--steps))
         );
-    background-repeat: no-repeat, repeat;
-    background-size:
-        100% 2px,      /* 横線の太さ */
-        100% 100%;     /* 縦線は全高 */
-    background-position:
-        0 50%,         /* 横線は中央 */
-        0 0;           /* 縦線は上から */
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: 0 3px;  /* ちょっと下げてベースラインとバランスを取る */
 }
