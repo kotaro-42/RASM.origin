@@ -156,7 +156,7 @@ body {
     content: "";
     position: absolute;
     top: 50%;
-    left: 9px;
+    left: 10px;
     width: calc(100% - 18px);   /* 左右 9px 分を除いた長さ */
     height: 2px;
     background: #000;
@@ -174,8 +174,8 @@ body {
 /* 丸の中心を線に合わせる */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px;      /* 丸の直径 */
-    height: 20px;
+    width: 10px;      /* 丸の直径 */
+    height: 10px;
     background: #00aaff;
     border-radius: 50%;
     border: 2px solid #000;
@@ -185,8 +185,8 @@ body {
 }
 
 .horizontal-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 10px;
     background: #00aaff;
     border-radius: 50%;
     border: 2px solid #000;
@@ -210,7 +210,7 @@ body {
 .slider-ticks {
     position: absolute;
     top: 50%;
-    left: 9px;
+    left: 10px;
     width: 2px;
     height: 10px;
     transform: translateY(-50%);
