@@ -1,3 +1,4 @@
+/* style.css */
 /* Reset */
 * {
     margin: 0;
@@ -11,6 +12,26 @@ body {
     background-color: #ffffff;
     color: #000000;
     padding: 40px;
+}
+
+:root {
+    --panel-min-height: 520px;
+    --panel-max-height: 780px;
+    --horizontal-thumb-overflow: 12px;
+}
+
+#background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#rnbo-root {
+    position: relative;
+    z-index: 1;
 }
 
 #custom-title {
@@ -29,13 +50,22 @@ body {
 .controls-container {
     display: flex;
     gap: 80px;
-    align-items: flex-start;
+    align-items: stretch;
+    min-height: var(--panel-min-height);
+}
+
+@media (min-height: 900px) {
+    .controls-container {
+        min-height: var(--panel-max-height);
+    }
 }
 
 /* ───────── Volume ───────── */
 
 .volume-section {
-    width: 200px;
+    flex: 1.5 1 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .section-title {
@@ -47,86 +77,120 @@ body {
 
 .volume-control {
     border: 2px solid #000;
-    padding: 30px 40px;
-    height: 500px;
+    padding: 20px 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
 }
 
 .volume-label {
     font-size: 14px;
     font-weight: 400;
     color: #000;
+    text-align: left;
+    align-self: center;
+    transform: translateX(-20px);
 }
 
 .vertical-slider-container {
     position: relative;
-    height: 350px;
+    flex: 1;
+    width: 100%;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
+    gap: 30px;
+    padding: 0 20px;
 }
 
 .vertical-slider {
     writing-mode: vertical-lr;
     direction: rtl;
     width: 6px;
-    height: 350px;
+    height: 100%;
     background: transparent;
     border: none;
     cursor: pointer;
+    appearance: none;
+    position: relative;
 }
 
 .vertical-slider-container::before {
     content: "";
-    width: 2px;
-    height: 350px;
-    background-color: #000;
     position: absolute;
+    width: 2px;
+    top: 10px;
+    bottom: 10px;
+    background-color: #000;
+    left: calc(50% - 20px);
+    transform: translateX(-50%);
+}
+
+#meter {
+    width: 10px;
+    height: 100%;
+    border: 2px solid #000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: transparent;
+}
+
+#bar {
+    width: 100%;
+    height: 0%;
+    background-color: #aef2f2;
+    transition: height 0.2s ease;
 }
 
 .vertical-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 36px;
-    height: 44px;
+    width: 30px;
+    height: 20px;
     background: #aef2f2;
     border: 2px solid #000;
-    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
 .vertical-slider::-moz-range-thumb {
-    width: 36px;
-    height: 44px;
+    width: 30px;
+    height: 20px;
     background: #aef2f2;
     border: 2px solid #000;
-    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
 .fake-meter-bar {
-    position: absolute;
-    right: -50px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 320px;
-    background-color: #aef2f2;
+    display: none;
 }
 
 /* ───────── Tuning ───────── */
 
 .tuning-section {
-    flex: 1;
+    flex: 8.5 1 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .tuning-control {
     border: 2px solid #000;
     padding: 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
 }
 
 .slider-group {
     margin-bottom: 50px;
+}
+
+.slider-group:last-child {
+    margin-bottom: 0;
 }
 
 .slider-label-container {
@@ -149,32 +213,36 @@ body {
     position: relative;
     width: 100%;
     height: 60px;
+    overflow: visible;
 }
 
 /* input range 本体は透明 */
 .horizontal-slider {
     -webkit-appearance: none;
-    width: 100%;
+    appearance: none;
+    width: calc(100% + (var(--horizontal-thumb-overflow) * 2));
+    margin-left: calc(-1 * var(--horizontal-thumb-overflow));
+    margin-right: calc(-1 * var(--horizontal-thumb-overflow));
     height: 60px;
     background: transparent;
     cursor: pointer;
     position: relative;
-    z-index: 2;
+    z-index: 2; /* tick の上にノブを表示 */
 }
 
 /* 六角形つまみ */
 .horizontal-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 30px;
-    height: 20px;
+    width: 20px;
+    height: 30px;
     background: #aef2f2;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     border: 2px solid #000;
 }
 
 .horizontal-slider::-moz-range-thumb {
-    width: 30px;
-    height: 20px;
+    width: 20px;
+    height: 30px;
     background: #aef2f2;
     border: 2px solid #000;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
@@ -189,7 +257,7 @@ body {
 }
 
 /* ==========================
-   ★ Ticks（目盛り）
+   ★ Ticks（目盛り・DOMベース）
    ========================== */
 
 .slider-ticks {
@@ -201,36 +269,26 @@ body {
     transform: translateY(-50%);
     pointer-events: none;
     z-index: 1;
-
-    --steps: 10; /* デフォルト値（JavaScriptで上書きされる） */
-
-    background-image:
-        linear-gradient(#000, #000),
-        repeating-linear-gradient(
-            to right,
-            #000,
-            #000 2px,
-            transparent 2px,
-            transparent calc(100% / var(--steps))
-        );
-
-    background-repeat: no-repeat, repeat;
-    background-size:
-        100% 2px,
-        calc(100% + 1px) 100%;
-
-    background-position:
-        0 50%,
-        0 0;
 }
 
-/* ★これが本来は外側に存在する必要がある */
-.slider-ticks::after {
+/* ベースライン（横線） */
+.slider-ticks::before {
     content: "";
     position: absolute;
-    right: 0;
-    top: 0;
-    width: 2px;
-    height: 100%;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 2px;
     background: #000;
+    transform: translateY(-50%);
+}
+
+/* 個々の目盛り線 */
+.slider-ticks .tick {
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 18px;
+    background: #000;
+    transform: translate(-1px, -50%); /* 線の中心が位置に来るように -1px */
 }

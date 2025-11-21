@@ -12,6 +12,10 @@ async function setup() {
     const out = context.createGain();
     out.connect(context.destination);
 
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 2048;
+    const meterBuffer = new Float32Array(analyser.fftSize);
+
     let patcher;
     try {
         const res = await fetch(patchURL);
@@ -34,7 +38,8 @@ async function setup() {
         return;
     }
 
-    device.node.connect(out);
+    device.node.connect(analyser);
+    analyser.connect(out);
 
     // Mic input
     try {
@@ -47,6 +52,8 @@ async function setup() {
 
     // Resume on click
     document.body.onclick = () => context.resume();
+
+    startMeterLoop(analyser, meterBuffer);
 
     // 呼び出し順
     connectCustomSliders(device);  // RNBO param <-> Slider
@@ -115,7 +122,7 @@ function connectCustomSliders(device) {
     const specs = {
         // volume は 0〜10（UI上も 0〜10）
         // step: 0 なら UI 側は連続。RNBO 側で step をかけているならそちらに委ねる。
-        volume:         { min: 0, max: 10, invert: false, step: 0 },
+        volume:         { min: 0, max: 10, invert: false, step: 0.1 },
 
         // sensitivity: 0〜12（13段階）・逆転項目
         sensitivity:    { min: 0, max: 12, invert: true,  step: 1 },
@@ -201,6 +208,34 @@ function connectCustomSliders(device) {
             slider.value = paramToSlider(ev.value);
         });
     });
+}
+
+function startMeterLoop(analyser, buffer) {
+    if (!analyser || !buffer) return;
+
+    const tick = () => {
+        analyser.getFloatTimeDomainData(buffer);
+        let sum = 0;
+        for (let i = 0; i < buffer.length; i++) {
+            const sample = buffer[i];
+            sum += sample * sample;
+        }
+        const rms = Math.sqrt(sum / buffer.length);
+        // 過大なクリップを避けるため少し持ち上げる
+        const normalized = Math.min(1, rms * 10);
+        updateMeter(normalized);
+        requestAnimationFrame(tick);
+    };
+
+    tick();
+}
+
+function updateMeter(level) {
+    const bar = document.getElementById("bar");
+    if (!bar) return;
+
+    const clamped = Math.max(0, Math.min(1, level));
+    bar.style.height = `${clamped * 100}%`;
 }
 
 
