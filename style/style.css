@@ -193,16 +193,16 @@ body {
    ================================ */
 
 .slider-ticks {
-    --steps: 10; /* default fallback */
     position: absolute;
     top: 50%;
     left: 0;
     width: 100%;
     height: 2px;
     transform: translateY(-50%);
+    --steps: 10; /* fallback */
 }
 
-/* 両端の縦線 */
+/* 両端 */
 .slider-ticks::before,
 .slider-ticks::after {
     content: "";
@@ -212,23 +212,17 @@ body {
     background-color: #000;
     top: -8px;
 }
-
 .slider-ticks::before { left: 0; }
-.slider-ticks::after  { right: 0; }
+.slider-ticks::after { right: 0; }
 
-/* data-steps に応じて本数を決定（steps+1本） */
-.slider-ticks[data-steps] {
-    --steps: attr(data-steps number);
-}
-
-/* 中間目盛り生成 */
+/* ticks 描画（JS で --steps を入れる） */
 .slider-ticks {
     background:
         repeating-linear-gradient(
             to right,
             transparent,
-            transparent calc(100% / (var(--steps) + 1) - 2px),
-            #000 calc(100% / (var(--steps) + 1) - 2px),
-            #000 calc(100% / (var(--steps) + 1))
+            transparent calc((100% / var(--steps)) - 2px),
+            #000 calc((100% / var(--steps)) - 2px),
+            #000 calc(100% / var(--steps))
         );
 }
