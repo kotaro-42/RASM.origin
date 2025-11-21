@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    >
     <meta name="theme-color" content="#000000">
     <meta name="rnbo-version" content="1.0.0-alpha.5">
 
@@ -11,6 +14,7 @@
 </head>
 
 <body>
+    <!-- 背景（今は空のまま） -->
     <svg id="background" width="100%" height="100%"></svg>
 
     <div id="rnbo-root">
@@ -18,7 +22,7 @@
 
         <div class="controls-container">
 
-            <!-- Volume -->
+            <!-- ───────── Volume ───────── -->
             <div class="volume-section">
                 <h2 class="section-title">Volume</h2>
                 <div class="volume-control">
@@ -34,7 +38,8 @@
                             class="vertical-slider"
                             min="0"
                             max="100"
-                            step="1">
+                            step="1"
+                        >
 
                         <!-- Fake Meter（現状は飾り） -->
                         <div class="fake-meter-bar"></div>
@@ -44,32 +49,33 @@
                 </div>
             </div>
 
-            <!-- Tuning -->
+            <!-- ───────── Tuning ───────── -->
             <div class="tuning-section">
                 <h2 class="section-title">Tuning</h2>
                 <div class="tuning-control">
 
-                    <!-- Sensitivity（12 区間）-->
+                    <!-- Sensitivity（12 区間 → 13 ポジション） -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">sensitivity</span>
                         </div>
                         <div class="horizontal-slider-container">
-                            <!-- 区間数 = 12（→ ticks は 13 本） -->
+                            <!-- JS が data-steps="12" を読んで 13 本の tick を生成 -->
                             <div class="slider-ticks" data-steps="12"></div>
                             <input
                                 type="range"
                                 id="sensitivity-slider"
                                 class="horizontal-slider"
                                 min="0"
-                                max="100">
+                                max="100"
+                            >
                         </div>
                         <div class="slider-range-labels">
                             <span>low</span><span>high</span>
                         </div>
                     </div>
 
-                    <!-- Dynamics（4 区間）-->
+                    <!-- Dynamics（4 区間 → 5 ポジション） -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">dynamics</span>
@@ -81,14 +87,15 @@
                                 id="dynamics-slider"
                                 class="horizontal-slider"
                                 min="0"
-                                max="100">
+                                max="100"
+                            >
                         </div>
                         <div class="slider-range-labels">
                             <span>low</span><span>high</span>
                         </div>
                     </div>
 
-                    <!-- Responsiveness（10 区間）-->
+                    <!-- Responsiveness（10 区間 → 11 ポジション） -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">responsiveness</span>
@@ -100,14 +107,15 @@
                                 id="responsiveness-slider"
                                 class="horizontal-slider"
                                 min="0"
-                                max="100">
+                                max="100"
+                            >
                         </div>
                         <div class="slider-range-labels">
                             <span>low</span><span>high</span>
                         </div>
                     </div>
 
-                    <!-- Release（10 区間）-->
+                    <!-- Release（10 区間 → 11 ポジション） -->
                     <div class="slider-group">
                         <div class="slider-label-container">
                             <span class="slider-label">release</span>
@@ -119,7 +127,8 @@
                                 id="release-slider"
                                 class="horizontal-slider"
                                 min="0"
-                                max="100">
+                                max="100"
+                            >
                         </div>
                         <div class="slider-range-labels">
                             <span>short</span><span>long</span>
