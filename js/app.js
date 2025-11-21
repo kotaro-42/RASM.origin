@@ -1,3 +1,4 @@
+// app.js
 // =====================================
 // RNBO Web Audio Device Setup
 // =====================================
@@ -49,7 +50,7 @@ async function setup() {
 
     // 呼び出し順
     connectCustomSliders(device);  // RNBO param <-> Slider
-    generateAllTicks();            // DOM ticks を全スライダーへ
+    generateAllTicks();            // 各スライダーに ticks を DOM 生成
 }
 
 
@@ -70,12 +71,14 @@ function loadRNBOScript(version) {
 
 
 // =====================================
-// DOM ticks generator（完全版）
+// DOM ticks generator（シンプル版）
 // =====================================
 // steps = 区間数 → ticks = steps + 1
-// 例：12 steps → 13 ticks
-function generateTicksFor(container, steps, slider) {
-    container.innerHTML = ""; // 初期化
+// 例：steps = 12 → 0〜12 の 13 本
+function generateTicksFor(container, steps) {
+    container.innerHTML = ""; // 一旦クリア
+
+    if (!Number.isFinite(steps) || steps <= 0) return;
 
     const count = steps + 1;
 
@@ -83,25 +86,20 @@ function generateTicksFor(container, steps, slider) {
         const t = document.createElement("div");
         t.className = "tick";
 
-        // 位置：スライダーの 0 → 100 に対して線の中心を対応
-        const pos = (i / steps) * 100;
-        t.style.left = `calc(${pos}% )`;
+        const pos = (i / steps) * 100; // 0〜100%
+        t.style.left = pos + "%";
 
         container.appendChild(t);
     }
 }
 
-
-// 全スライダーに ticks を生成
+// 全 .slider-ticks に対して ticks を生成
 function generateAllTicks() {
     document.querySelectorAll(".slider-ticks").forEach(ticks => {
         const steps = Number(ticks.dataset.steps);
-        const slider = ticks.parentElement.querySelector(".horizontal-slider");
-        if (steps >= 1 && slider) {
-            // CSS変数 --steps を設定
-            ticks.style.setProperty('--steps', steps);
-            generateTicksFor(ticks, steps, slider);
-        }
+        if (!Number.isFinite(steps) || steps <= 0) return;
+
+        generateTicksFor(ticks, steps);
     });
 }
 
@@ -112,14 +110,24 @@ function generateAllTicks() {
 // =====================================
 function connectCustomSliders(device) {
 
-    // param spec
+    // ★ ここが RNBO 側と合わせ込むパラメータ仕様 ★
+    //   → RNBO パッチ内も同様に 0〜… の範囲になっている前提
     const specs = {
-        volume:         { min: 0,  max: 1,  invert: false, step: 0.01 },
+        // volume は 0〜10（UI上も 0〜10）
+        // step: 0 なら UI 側は連続。RNBO 側で step をかけているならそちらに委ねる。
+        volume:         { min: 0, max: 10, invert: false, step: 0 },
 
-        sensitivity:    { min: 20, max: 80, invert: true,  step: 5    }, // 20〜80, 12区間
-        dynamics:       { min: 0,  max: 4,  invert: false, step: 1    }, // 0〜4
-        responsiveness: { min: 0,  max: 10, invert: true,  step: 1    },
-        release:        { min: 0,  max: 10, invert: false, step: 1    }
+        // sensitivity: 0〜12（13段階）・逆転項目
+        sensitivity:    { min: 0, max: 12, invert: true,  step: 1 },
+
+        // dynamics: 0〜4（5段階）
+        dynamics:       { min: 0, max: 4,  invert: false, step: 1 },
+
+        // responsiveness: 0〜10（11段階）・逆転項目
+        responsiveness: { min: 0, max: 10, invert: true,  step: 1 },
+
+        // release: 0〜10
+        release:        { min: 0, max: 10, invert: false, step: 1 }
     };
 
     const mapping = [
@@ -136,26 +144,43 @@ function connectCustomSliders(device) {
         if (!slider || !p) return;
 
         const spec = specs[param];
+        if (!spec) return;
 
-        // 0〜100 の slider 空間におけるステップ幅
+        // HTML の min/max/step も RNBO と合わせる
+        slider.min = spec.min;
+        slider.max = spec.max;
         if (spec.step > 0) {
-            const intervals = (spec.max - spec.min) / spec.step;
-            slider.step = 100 / intervals;
+            slider.step = spec.step;
+        } else {
+            slider.removeAttribute("step");
         }
 
         // Param → Slider
         const paramToSlider = (v) => {
-            const norm = (v - spec.min) / (spec.max - spec.min);
-            const pos = norm * 100;
-            return spec.invert ? (100 - pos) : pos;
+            let val = v;
+            if (spec.invert) {
+                // 逆転：0 <-> max
+                val = spec.max - v;
+            }
+            return val;
         };
 
         // Slider → Param
         const sliderToParam = (v) => {
-            let norm = spec.invert ? (100 - v) / 100 : v / 100;
-            let raw = spec.min + norm * (spec.max - spec.min);
-            raw = Math.round(raw / spec.step) * spec.step; // スナップ
-            return Math.min(spec.max, Math.max(spec.min, raw));
+            let raw = v;
+            if (spec.invert) {
+                raw = spec.max - v;
+            }
+
+            if (spec.step > 0) {
+                raw = Math.round(raw / spec.step) * spec.step;
+            }
+
+            // 安全クリップ
+            if (raw < spec.min) raw = spec.min;
+            if (raw > spec.max) raw = spec.max;
+
+            return raw;
         };
 
         // 初期値反映：RNBO の値を UI に
@@ -163,14 +188,17 @@ function connectCustomSliders(device) {
 
         // UI → RNBO
         slider.addEventListener("input", (e) => {
-            p.value = sliderToParam(parseFloat(e.target.value));
+            const v = parseFloat(e.target.value);
+            const paramValue = sliderToParam(v);
+            if (p.value !== paramValue) {
+                p.value = paramValue;
+            }
         });
 
-        // RNBO → UI（外部から更新されたら追随）
+        // RNBO → UI（外部から param が変わったときも追従）
         device.parameterChangeEvent.subscribe(ev => {
-            if (ev.id === p.id) {
-                slider.value = paramToSlider(ev.value);
-            }
+            if (ev.id !== p.id) return;
+            slider.value = paramToSlider(ev.value);
         });
     });
 }
