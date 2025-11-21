@@ -1,4 +1,4 @@
-<!-- index.html -->
+<!-- index.html（完全統合版） -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +28,7 @@
 
                     <div class="vertical-slider-container">
 
+                        <!-- Volume：連続 -->
                         <input type="range"
                                id="volume-slider"
                                class="vertical-slider"
@@ -51,14 +52,16 @@
                             <span class="slider-label">sensitivity</span>
                         </div>
                         <div class="horizontal-slider-container">
-                            <!-- 12 区間 = 13 ポジション -->
+                            <!-- ★ 12区間 = 13ポジション -->
                             <div class="slider-ticks" data-steps="12"></div>
                             <input type="range"
                                    id="sensitivity-slider"
                                    class="horizontal-slider"
                                    min="0" max="100">
                         </div>
-                        <div class="slider-range-labels"><span>low</span><span>high</span></div>
+                        <div class="slider-range-labels">
+                            <span>low</span><span>high</span>
+                        </div>
                     </div>
 
                     <!-- Dynamics -->
@@ -67,14 +70,16 @@
                             <span class="slider-label">dynamics</span>
                         </div>
                         <div class="horizontal-slider-container">
-                            <!-- 0〜4 → 4 区間 (5 ポジション) -->
+                            <!-- ★ 4区間 = 5ポジション -->
                             <div class="slider-ticks" data-steps="4"></div>
                             <input type="range"
                                    id="dynamics-slider"
                                    class="horizontal-slider"
                                    min="0" max="100">
                         </div>
-                        <div class="slider-range-labels"><span>low</span><span>high</span></div>
+                        <div class="slider-range-labels">
+                            <span>low</span><span>high</span>
+                        </div>
                     </div>
 
                     <!-- Responsiveness -->
@@ -83,14 +88,16 @@
                             <span class="slider-label">responsiveness</span>
                         </div>
                         <div class="horizontal-slider-container">
-                            <!-- 0〜10 (1刻み) → 10 区間 (11 ポジション) -->
+                            <!-- ★ 10区間 = 11ポジション -->
                             <div class="slider-ticks" data-steps="10"></div>
                             <input type="range"
                                    id="responsiveness-slider"
                                    class="horizontal-slider"
                                    min="0" max="100">
                         </div>
-                        <div class="slider-range-labels"><span>low</span><span>high</span></div>
+                        <div class="slider-range-labels">
+                            <span>low</span><span>high</span>
+                        </div>
                     </div>
 
                     <!-- Release -->
@@ -99,14 +106,16 @@
                             <span class="slider-label">release</span>
                         </div>
                         <div class="horizontal-slider-container">
-                            <!-- 0〜10 (1刻み) → 10 区間 -->
+                            <!-- ★ 同じく 10区間 -->
                             <div class="slider-ticks" data-steps="10"></div>
                             <input type="range"
                                    id="release-slider"
                                    class="horizontal-slider"
                                    min="0" max="100">
                         </div>
-                        <div class="slider-range-labels"><span>short</span><span>long</span></div>
+                        <div class="slider-range-labels">
+                            <span>short</span><span>long</span>
+                        </div>
                     </div>
 
                 </div>
@@ -117,5 +126,14 @@
     <!-- Scripts -->
     <script src="js/guardrails.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- JS: ticks の steps を CSS へ適用 -->
+    <script>
+        document.querySelectorAll(".slider-ticks").forEach(ticks => {
+            const steps = Number(ticks.dataset.steps);
+            ticks.style.setProperty("--steps", steps);
+        });
+    </script>
+
 </body>
 </html>
