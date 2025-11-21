@@ -210,9 +210,9 @@ body {
 .slider-ticks {
     position: absolute;
     top: 50%;
-    left: 9px;                        /* ベース線と同じ開始位置 */
-    width: calc(100% - 18px);         /* ベース線と同じ長さ */
-    height: 2px;
+    left: 9px;
+    width: 2px;
+    height: 10px;
     transform: translateY(-50%);
     --steps: 10;                      /* JS で上書き */
 }
@@ -223,9 +223,9 @@ body {
     content: "";
     position: absolute;
     width: 2px;
-    height: 18px;
+    height: 10px;
     background-color: #000;
-    top: -8px;
+    top: -10px;
 }
 .slider-ticks::before { left: 0; }
 .slider-ticks::after  { right: 0; }
