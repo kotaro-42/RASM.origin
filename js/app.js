@@ -121,7 +121,6 @@ function connectCustomSliders(device) {
     //   → RNBO パッチ内も同様に 0〜… の範囲になっている前提
     const specs = {
         // volume は 0〜10（UI上も 0〜10）
-        // step: 0 なら UI 側は連続。RNBO 側で step をかけているならそちらに委ねる。
         volume:         { min: 0, max: 10, invert: false, step: 0.1 },
 
         // sensitivity: 0〜12（13段階）・逆転項目
