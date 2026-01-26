@@ -4,7 +4,7 @@
 // =====================================
 
 async function setup() {
-    const patchURL = "export/rasm_origin.json";
+    const patchURL = "export/rasm_3band_ver.json";
 
     const WA = window.AudioContext || window.webkitAudioContext;
     const context = new WA();
